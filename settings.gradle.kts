@@ -20,5 +20,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "DoujinshiManager"
-include(":app")
- 
+include(":app", ":shared")

@@ -1,0 +1,58 @@
+CREATE TABLE doujinshis (
+  id TEXT PRIMARY KEY NOT NULL,
+  title TEXT NOT NULL,
+  circle_id TEXT,
+  event_id TEXT,
+  pub_date TEXT,
+  FOREIGN KEY (circle_id) REFERENCES circles(id),
+  FOREIGN KEY (event_id) REFERENCES events(id)
+);
+
+CREATE TABLE doujinshis_authors (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  doujinshi_id TEXT NOT NULL,
+  author_id TEXT NOT NULL,
+  FOREIGN KEY (doujinshi_id) REFERENCES doujinshis(id),
+  FOREIGN KEY (author_id) REFERENCES authors(id)
+);
+
+CREATE TABLE doujinshis_tags (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  doujinshi_id TEXT NOT NULL,
+  tag_id TEXT NOT NULL,
+  FOREIGN KEY (doujinshi_id) REFERENCES doujinshis(id),
+  FOREIGN KEY (tag_id) REFERENCES tags(id)
+);
+
+CREATE INDEX doujinshi_title ON doujinshis(title);
+
+find:
+SELECT *
+FROM doujinshis
+LEFT OUTER JOIN circles ON doujinshis.circle_id = circles.id
+LEFT OUTER JOIN events ON doujinshis.event_id = events.id
+LEFT OUTER JOIN doujinshis_authors da ON doujinshis.id = da.doujinshi_id
+LEFT OUTER JOIN authors ON da.author_id = authors.id
+LEFT OUTER JOIN doujinshis_tags dt ON doujinshis.id = dt.doujinshi_id
+LEFT OUTER JOIN tags ON dt.tag_id = tags.id
+WHERE (:keywordQuery = NULL OR title LIKE :keywordQuery)
+AND (:circleId = NULL OR circle_id = :circleId)
+AND (:eventId = NULL OR event_id = :eventId)
+AND (:authorIds = NULL OR authors.id IN :authorIds)
+AND (:tagIds = NULL OR tags.id IN :tagIds)
+AND (:start_date = NULL OR :start_date <= pub_date)
+AND (:end_date = NULL OR pub_date <= :end_date)
+LIMIT :limit
+OFFSET :offset;
+
+insertDoujinshi:
+INSERT INTO doujinshis (id, title, circle_id, event_id, pub_date)
+VALUES (?, ?, ?, ?, ?);
+
+insertDoujinshisAuthors:
+INSERT INTO doujinshis_authors (doujinshi_id, author_id)
+VALUES (?, ?);
+
+insertDoujinshisTags:
+INSERT INTO doujinshis_tags (doujinshi_id, tag_id)
+VALUES (?, ?);

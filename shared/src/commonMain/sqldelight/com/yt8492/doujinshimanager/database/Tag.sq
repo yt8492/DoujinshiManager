@@ -1,0 +1,18 @@
+CREATE TABLE tags (
+  id TEXT PRIMARY KEY NOT NULL,
+  name TEXT NOT NULL
+);
+
+insert:
+INSERT INTO tags (id, name)
+VALUES (?, ?);
+
+search:
+SELECT *
+FROM tags
+WHERE name LIKE :searchQuery;
+
+find:
+SELECT *
+FROM tags
+WHERE id = ?;

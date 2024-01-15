@@ -5,6 +5,10 @@ import com.yt8492.doujinshimanager.shared.domain.model.DoujinshiSearchResult
 import com.yt8492.doujinshimanager.shared.domain.model.DoujinshiSearchSpec
 
 interface DoujinshiRepository {
-    suspend fun search(searchSpec: DoujinshiSearchSpec): DoujinshiSearchResult
+    suspend fun search(
+        searchSpec: DoujinshiSearchSpec,
+        page: Int = 0,
+        size: Int = 30,
+    ): DoujinshiSearchResult
     suspend fun save(doujinshi: Doujinshi)
 }

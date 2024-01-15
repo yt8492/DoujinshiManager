@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.jetbrainsKotlinMultiplatform)
+    alias(libs.plugins.sqlDelight)
 }
 
 group = "org.yt8492"
@@ -16,6 +17,14 @@ kotlin {
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.uuid)
             }
+        }
+    }
+}
+
+sqldelight {
+    databases {
+        create("Database") {
+            packageName.set("com.yt8492.doujinshimanager.database")
         }
     }
 }

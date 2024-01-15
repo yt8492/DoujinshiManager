@@ -1,0 +1,20 @@
+CREATE TABLE events (
+  id TEXT PRIMARY KEY NOT NULL,
+  name TEXT NOT NULL,
+  start_at TEXT,
+  end_at TEXT
+);
+
+insert:
+INSERT INTO events (id, name, start_at, end_at)
+VALUES (?, ?, ?, ?);
+
+search:
+SELECT *
+FROM events
+WHERE name LIKE :searchQuery;
+
+find:
+SELECT *
+FROM events
+WHERE id = ?;

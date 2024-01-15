@@ -4,13 +4,5 @@ import kotlinx.datetime.LocalDate
 
 data class Period(
     override val start: LocalDate,
-    override val endInclusive: LocalDate
-) : ClosedRange<LocalDate> {
-    override fun contains(value: LocalDate): Boolean {
-        return start < value && value <= endInclusive
-    }
-
-    override fun isEmpty(): Boolean {
-        return false
-    }
-}
+    val end: LocalDate
+) : ClosedRange<LocalDate> by start..end

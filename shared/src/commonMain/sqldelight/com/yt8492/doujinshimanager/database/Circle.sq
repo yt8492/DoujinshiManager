@@ -1,0 +1,18 @@
+CREATE TABLE circles (
+  id TEXT PRIMARY KEY NOT NULL,
+  name TEXT NOT NULL
+);
+
+insert:
+INSERT INTO circles (id, name)
+VALUES (?, ?);
+
+search:
+SELECT *
+FROM circles
+WHERE name LIKE :searchQuery;
+
+find:
+SELECT *
+FROM circles
+WHERE id = ?;

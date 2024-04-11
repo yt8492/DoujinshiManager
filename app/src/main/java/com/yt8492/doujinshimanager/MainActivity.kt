@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.yt8492.doujinshimanager.ui.theme.DoujinshiManagerTheme
+import com.yt8492.doujinshimanager.ui.top.TopPage
 import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
@@ -26,16 +27,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             DoujinshiManagerTheme {
                 // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    val (increment, num) = rememberHogeHoge()
-                    Text(text = "num: $num")
-                    Button(onClick = { increment() }) {
-                        Text(text = "+")
-                    }
-                }
+                TopPage()
             }
         }
     }

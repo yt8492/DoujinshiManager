@@ -16,6 +16,7 @@ kotlin {
                 implementation(kotlin("stdlib-common"))
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.uuid)
+                implementation(libs.koin.core)
             }
         }
     }

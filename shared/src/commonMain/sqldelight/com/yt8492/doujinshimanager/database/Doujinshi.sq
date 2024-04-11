@@ -38,10 +38,10 @@ LEFT OUTER JOIN tags ON dt.tag_id = tags.id
 WHERE (:keywordQuery = NULL OR title LIKE :keywordQuery)
 AND (:circleId = NULL OR circle_id = :circleId)
 AND (:eventId = NULL OR event_id = :eventId)
-AND (:authorIds = NULL OR authors.id IN :authorIds)
-AND (:tagIds = NULL OR tags.id IN :tagIds)
-AND (:start_date = NULL OR :start_date <= pub_date)
-AND (:end_date = NULL OR pub_date <= :end_date)
+AND (:authorsIsNotEmpty AND authors.id IN :authorIds)
+AND (:tagsIsNotEmpty AND tags.id IN :tagIds)
+AND (:startDate = NULL OR :startDate <= pub_date)
+AND (:endDate = NULL OR pub_date <= :endDate)
 LIMIT :limit
 OFFSET :offset;
 

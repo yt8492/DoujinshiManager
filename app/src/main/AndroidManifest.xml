@@ -11,6 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.DoujinshiManager"
+        android:name=".DoujinshiManagerApp"
         tools:targetApi="31">
         <activity
             android:name=".MainActivity"

@@ -25,10 +25,12 @@ class DoujinshiRepositoryImpl(
             keywordQuery = searchSpec.keyword?.let { "%$it%" },
             circleId = searchSpec.circle?.value,
             eventId = searchSpec.event?.value,
+            authorsIsNotEmpty = searchSpec.authors.isNotEmpty(),
             authorIds = searchSpec.authors.map { it.value },
+            tagsIsNotEmpty = searchSpec.tags.isNotEmpty(),
             tagIds = searchSpec.tags.map { it.value },
-            start_date = searchSpec.pubTerm?.start?.toString(),
-            end_date = searchSpec.pubTerm?.end?.toString(),
+            startDate = searchSpec.pubTerm?.start?.toString(),
+            endDate = searchSpec.pubTerm?.end?.toString(),
             limit = size.toLong(),
             offset = (page * size).toLong()
         )

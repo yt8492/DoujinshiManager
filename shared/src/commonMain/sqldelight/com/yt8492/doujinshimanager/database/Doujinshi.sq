@@ -35,13 +35,13 @@ LEFT OUTER JOIN doujinshis_authors da ON doujinshis.id = da.doujinshi_id
 LEFT OUTER JOIN authors ON da.author_id = authors.id
 LEFT OUTER JOIN doujinshis_tags dt ON doujinshis.id = dt.doujinshi_id
 LEFT OUTER JOIN tags ON dt.tag_id = tags.id
-WHERE (:keywordQuery = NULL OR title LIKE :keywordQuery)
-AND (:circleId = NULL OR circle_id = :circleId)
-AND (:eventId = NULL OR event_id = :eventId)
-AND (:authorsIsNotEmpty AND authors.id IN :authorIds)
-AND (:tagsIsNotEmpty AND tags.id IN :tagIds)
-AND (:startDate = NULL OR :startDate <= pub_date)
-AND (:endDate = NULL OR pub_date <= :endDate)
+WHERE (:keywordQuery ISNULL OR title LIKE :keywordQuery)
+AND (:circleId ISNULL OR circle_id = :circleId)
+AND (:eventId ISNULL OR event_id = :eventId)
+AND (:authorsIsEmpty OR authors.id IN :authorIds)
+AND (:tagsIsEmpty OR tags.id IN :tagIds)
+AND (:startDate ISNULL OR :startDate <= pub_date)
+AND (:endDate ISNULL OR pub_date <= :endDate)
 LIMIT :limit
 OFFSET :offset;
 

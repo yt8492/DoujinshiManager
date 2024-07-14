@@ -21,6 +21,8 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import com.yt8492.doujinshimanager.ui.bindingmodel.DoujinshiBindingModel
 import com.yt8492.doujinshimanager.ui.component.DoujinshiListItem
 
@@ -75,6 +77,17 @@ fun TopTemplate(
                 .padding(paddingValues)
                 .fillMaxWidth()
         ) {
+            if (bindingModel.list.isEmpty()) {
+                item {
+                    Text(
+                        text = "同人誌が登録されていません",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth()
+                    )
+                }
+            }
             items(
                 items = bindingModel.list,
                 key = { it.id.value }

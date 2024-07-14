@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.yt8492.doujinshimanager.ui.MainApp
 import com.yt8492.doujinshimanager.ui.theme.DoujinshiManagerTheme
 import com.yt8492.doujinshimanager.ui.top.TopPage
 import kotlinx.coroutines.delay
@@ -25,44 +26,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            DoujinshiManagerTheme {
-                // A surface container using the 'background' color from the theme
-                TopPage()
-            }
+            MainApp()
         }
-    }
-}
-
-data class Hoge(
-    val increment: () -> Unit,
-    val value: Int
-)
-
-@Composable
-fun rememberHogeHoge(): Hoge {
-    var state by remember {
-        mutableIntStateOf(0)
-    }
-    return Hoge(
-        increment = {
-            state++
-        },
-        value = state,
-    )
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    DoujinshiManagerTheme {
-        Greeting("Android")
     }
 }

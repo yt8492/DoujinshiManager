@@ -17,6 +17,14 @@ class TagRepositoryImpl(
             }
     }
 
+    override suspend fun findByName(tagName: String): Tag? {
+        return queries.search(tagName)
+            .executeAsOneOrNull()
+            ?.let {
+                DBConverter.convertToModel(it)
+            }
+    }
+
     override suspend fun get(id: TagId): Tag {
         return queries.find(id.value)
             .executeAsOne()

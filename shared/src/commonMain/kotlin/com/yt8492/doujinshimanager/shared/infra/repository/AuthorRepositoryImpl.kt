@@ -17,6 +17,14 @@ class AuthorRepositoryImpl(
             }
     }
 
+    override suspend fun findByName(authorName: String): Author? {
+        return queries.search(authorName)
+            .executeAsOneOrNull()
+            ?.let {
+                DBConverter.convertToModel(it)
+            }
+    }
+
     override suspend fun get(id: AuthorId): Author {
         return queries.find(id.value)
             .executeAsOne()

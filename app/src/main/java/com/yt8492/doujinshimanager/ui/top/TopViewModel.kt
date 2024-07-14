@@ -11,8 +11,13 @@ import com.yt8492.doujinshimanager.shared.domain.model.DoujinshiSearchSpec
 import com.yt8492.doujinshimanager.shared.domain.repository.DoujinshiRepository
 import com.yt8492.doujinshimanager.ui.bindingmodel.DoujinshiBindingModel
 import com.yt8492.doujinshimanager.ui.converter.BindingModelConverter
+import com.yt8492.doujinshimanager.ui.lib.Destination
+import com.yt8492.doujinshimanager.ui.register.RegisterDestination
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -22,6 +27,9 @@ class TopViewModel(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(TopUiState.init())
     val uiState: StateFlow<TopUiState> = _uiState.asStateFlow()
+
+    private val _destination = MutableStateFlow<Destination?>(null)
+    val destination: StateFlow<Destination?> = _destination.asStateFlow()
 
     fun load() {
         viewModelScope.launch {
@@ -81,7 +89,11 @@ class TopViewModel(
     }
 
     fun onClickAddDoujinshi() {
-        // TODO
+        _destination.value = RegisterDestination
+    }
+
+    fun onCompleteNavigation() {
+        _destination.value = null
     }
 }
 

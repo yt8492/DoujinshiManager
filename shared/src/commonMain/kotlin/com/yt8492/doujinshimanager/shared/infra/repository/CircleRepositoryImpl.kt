@@ -17,6 +17,14 @@ class CircleRepositoryImpl(
             }
     }
 
+    override suspend fun findByName(circleName: String): Circle? {
+        return queries.search(circleName)
+            .executeAsOneOrNull()
+            ?.let {
+                DBConverter.convertToModel(it)
+            }
+    }
+
     override suspend fun get(id: CircleId): Circle {
         return queries.find(id.value)
             .executeAsOne()

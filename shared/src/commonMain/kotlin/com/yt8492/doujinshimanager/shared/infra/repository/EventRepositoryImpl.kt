@@ -17,6 +17,14 @@ class EventRepositoryImpl(
             }
     }
 
+    override suspend fun findByName(eventName: String): Event? {
+        return queries.search(eventName)
+            .executeAsOneOrNull()
+            ?.let {
+                DBConverter.convertToModel(it)
+            }
+    }
+
     override suspend fun get(id: EventId): Event {
         return queries.find(id.value)
             .executeAsOne()

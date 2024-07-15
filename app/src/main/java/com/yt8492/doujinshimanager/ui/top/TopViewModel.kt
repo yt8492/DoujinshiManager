@@ -96,32 +96,3 @@ class TopViewModel(
         _destination.value = null
     }
 }
-
-object DummyDoujinshiRepository : DoujinshiRepository {
-    override suspend fun search(
-        searchSpec: DoujinshiSearchSpec,
-        page: Int,
-        size: Int
-    ): DoujinshiSearchResult {
-        return DoujinshiSearchResult(
-            list = List(size) { i ->
-                val id = i + page * size
-                Doujinshi(
-                    id = DoujinshiId(id.toString()),
-                    title = "title #$id",
-                    circle = Circle(
-                        id = CircleId("hoge"),
-                        name = "circle",
-                    ),
-                    authors = listOf(),
-                    tags = listOf(),
-                    event = null,
-                    pubDate = null,
-                )
-            },
-            hasNextPage = true,
-        )
-    }
-
-    override suspend fun save(doujinshi: Doujinshi) {}
-}

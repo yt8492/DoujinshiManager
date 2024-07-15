@@ -24,6 +24,13 @@ CREATE TABLE doujinshis_tags (
   FOREIGN KEY (tag_id) REFERENCES tags(id)
 );
 
+CREATE TABLE doujinshis_images (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  doujinshi_id TEXT NOT NULL,
+  image_uri TEXT NOT NULL,
+  FOREIGN KEY (doujinshi_id) REFERENCES doujinshis(id)
+);
+
 CREATE INDEX doujinshi_title ON doujinshis(title);
 
 find:
@@ -35,6 +42,7 @@ LEFT OUTER JOIN doujinshis_authors da ON doujinshis.id = da.doujinshi_id
 LEFT OUTER JOIN authors ON da.author_id = authors.id
 LEFT OUTER JOIN doujinshis_tags dt ON doujinshis.id = dt.doujinshi_id
 LEFT OUTER JOIN tags ON dt.tag_id = tags.id
+LEFT OUTER JOIN doujinshis_images di ON doujinshis.id = di.doujinshi_id
 WHERE (:keywordQuery ISNULL OR title LIKE :keywordQuery)
 AND (:circleId ISNULL OR circle_id = :circleId)
 AND (:eventId ISNULL OR event_id = :eventId)
@@ -55,4 +63,8 @@ VALUES (?, ?);
 
 insertDoujinshisTags:
 INSERT INTO doujinshis_tags (doujinshi_id, tag_id)
+VALUES (?, ?);
+
+insertDoujinshiImages:
+INSERT INTO doujinshis_images (doujinshi_id, image_uri)
 VALUES (?, ?);

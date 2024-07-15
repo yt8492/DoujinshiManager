@@ -1,5 +1,8 @@
 package com.yt8492.doujinshimanager.ui.register
 
+import android.net.Uri
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,10 +14,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -43,9 +50,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusEvent
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.yt8492.doujinshimanager.shared.domain.model.Author
 import com.yt8492.doujinshimanager.shared.domain.model.Circle
 import com.yt8492.doujinshimanager.shared.domain.model.Event
@@ -82,6 +93,8 @@ fun RegisterTemplate(
     onDeleteEvent: () -> Unit,
     onSelectPubDate: (LocalDate) -> Unit,
     onDeletePubDate: () -> Unit,
+    onClickAddImage: () -> Unit,
+    onDeleteImage: (Uri) -> Unit,
     onClickRegister: () -> Unit,
     onDismiss: () -> Unit,
     onBackPress: () -> Unit,
@@ -375,6 +388,49 @@ fun RegisterTemplate(
                     }
                 }
             }
+            InputSection(label = "画像") {
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    items(bindingModel.imageUris) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(it)
+                                .build(),
+                            contentDescription = null,
+                            contentScale = ContentScale.FillWidth,
+                            modifier = Modifier
+                                .size(
+                                    width = 128.dp,
+                                    height = 96.dp,
+                                ),
+                        )
+                    }
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .clickable {
+                                    onClickAddImage()
+                                }
+                                .size(
+                                    width = 128.dp,
+                                    height = 96.dp,
+                                )
+                                .border(
+                                    width = 1.dp,
+                                    color = MaterialTheme.colorScheme.primary,
+                                ),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "追加",
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -433,6 +489,8 @@ private fun RegisterTemplatePreview() {
             onDeleteEvent = {},
             onSelectPubDate = {},
             onDeletePubDate = {},
+            onClickAddImage = {},
+            onDeleteImage = {},
             onClickRegister = {},
             onDismiss = {},
             onBackPress = {},

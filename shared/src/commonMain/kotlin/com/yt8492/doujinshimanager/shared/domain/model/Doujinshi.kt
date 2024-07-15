@@ -11,6 +11,7 @@ data class Doujinshi(
     val tags: List<Tag>,
     val event: Event?,
     val pubDate: LocalDate?,
+    val imageUris: List<String>,
 ) {
     companion object {
         fun create(
@@ -19,7 +20,8 @@ data class Doujinshi(
             authors: List<Author>,
             tags: List<Tag>,
             event: Event?,
-            pubDate: LocalDate?
+            pubDate: LocalDate?,
+            imageUris: List<String>,
         ): Doujinshi {
             return Doujinshi(
                 id = DoujinshiId(uuid4().toString()),
@@ -29,6 +31,7 @@ data class Doujinshi(
                 tags = tags,
                 event = event,
                 pubDate = pubDate,
+                imageUris = imageUris,
             )
         }
     }

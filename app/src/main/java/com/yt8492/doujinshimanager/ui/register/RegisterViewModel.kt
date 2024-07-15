@@ -1,5 +1,6 @@
 package com.yt8492.doujinshimanager.ui.register
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yt8492.doujinshimanager.shared.domain.model.Author
@@ -290,6 +291,22 @@ class RegisterViewModel(
         }
     }
 
+    fun onSelectImages(uris: List<Uri>) {
+        _bindingModel.update {
+            it.copy(
+                imageUris = it.imageUris + uris,
+            )
+        }
+    }
+
+    fun onDeleteImage(uri: Uri) {
+        _bindingModel.update {
+            it.copy(
+                imageUris = it.imageUris - uri,
+            )
+        }
+    }
+
     fun onClickRegister() {
         suggestJob?.cancel()
         suggestJob = null
@@ -307,6 +324,7 @@ class RegisterViewModel(
                 tags = current.tags,
                 event = current.event,
                 pubDate = current.pubDate,
+                imageUris = current.imageUris.map { it.toString() },
             )
             doujinshiRepository.save(doujinshi)
             _destination.value = PopBackDestination

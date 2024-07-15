@@ -65,6 +65,7 @@ dependencies {
     implementation(libs.navigation.compose)
     implementation(libs.sqldelight.androiddriver)
     implementation(libs.koin.compose)
+    implementation(libs.coil)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -49,7 +49,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -68,6 +67,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toLocalDateTime
+import java.io.File
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -94,7 +94,7 @@ fun RegisterTemplate(
     onSelectPubDate: (LocalDate) -> Unit,
     onDeletePubDate: () -> Unit,
     onClickAddImage: () -> Unit,
-    onDeleteImage: (Uri) -> Unit,
+    onDeleteImage: (String) -> Unit,
     onClickRegister: () -> Unit,
     onDismiss: () -> Unit,
     onBackPress: () -> Unit,
@@ -392,10 +392,10 @@ fun RegisterTemplate(
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
-                    items(bindingModel.imageUris) {
+                    items(bindingModel.imagePaths) {
                         AsyncImage(
                             model = ImageRequest.Builder(LocalContext.current)
-                                .data(it)
+                                .data(File(it))
                                 .build(),
                             contentDescription = null,
                             contentScale = ContentScale.FillWidth,

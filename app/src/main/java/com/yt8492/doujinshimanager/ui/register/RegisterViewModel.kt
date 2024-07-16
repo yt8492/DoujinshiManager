@@ -1,6 +1,5 @@
 package com.yt8492.doujinshimanager.ui.register
 
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yt8492.doujinshimanager.shared.domain.model.Author
@@ -17,11 +16,8 @@ import com.yt8492.doujinshimanager.shared.domain.repository.TagRepository
 import com.yt8492.doujinshimanager.ui.lib.Destination
 import com.yt8492.doujinshimanager.ui.lib.PopBackDestination
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -291,18 +287,18 @@ class RegisterViewModel(
         }
     }
 
-    fun onSelectImages(uris: List<Uri>) {
+    fun onSelectImages(paths: List<String>) {
         _bindingModel.update {
             it.copy(
-                imageUris = it.imageUris + uris,
+                imagePaths = it.imagePaths + paths,
             )
         }
     }
 
-    fun onDeleteImage(uri: Uri) {
+    fun onDeleteImage(path: String) {
         _bindingModel.update {
             it.copy(
-                imageUris = it.imageUris - uri,
+                imagePaths = it.imagePaths - path,
             )
         }
     }
@@ -324,7 +320,7 @@ class RegisterViewModel(
                 tags = current.tags,
                 event = current.event,
                 pubDate = current.pubDate,
-                imageUris = current.imageUris.map { it.toString() },
+                imagePaths = current.imagePaths,
             )
             doujinshiRepository.save(doujinshi)
             _destination.value = PopBackDestination

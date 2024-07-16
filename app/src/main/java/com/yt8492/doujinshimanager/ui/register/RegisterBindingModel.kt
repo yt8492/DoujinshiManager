@@ -1,6 +1,5 @@
 package com.yt8492.doujinshimanager.ui.register
 
-import android.net.Uri
 import com.yt8492.doujinshimanager.shared.domain.model.Author
 import com.yt8492.doujinshimanager.shared.domain.model.Circle
 import com.yt8492.doujinshimanager.shared.domain.model.Event
@@ -14,7 +13,7 @@ data class RegisterBindingModel(
     val tags: List<Tag>,
     val event: Event?,
     val pubDate: LocalDate?,
-    val imageUris: List<Uri>,
+    val imagePaths: List<String>,
     val inputCircle: String,
     val inputAuthor: String,
     val inputTag: String,
@@ -34,7 +33,7 @@ data class RegisterBindingModel(
                 tags = emptyList(),
                 event = null,
                 pubDate = null,
-                imageUris = listOf(),
+                imagePaths = listOf(),
                 inputCircle = "",
                 inputAuthor = "",
                 inputTag = "",

@@ -91,8 +91,8 @@ class DoujinshiRepositoryImpl(
                     pubDate = doujinshi.pub_date?.let {
                         LocalDate.parse(it)
                     },
-                    imageUris = doujinshis.mapNotNull {
-                        it.image_uri
+                    imagePaths = doujinshis.mapNotNull {
+                        it.image_path
                     },
                 )
             }
@@ -123,10 +123,10 @@ class DoujinshiRepositoryImpl(
                     tag_id = it.id.value,
                 )
             }
-            doujinshi.imageUris.forEach {
+            doujinshi.imagePaths.forEach {
                 doujinshiQueries.insertDoujinshiImages(
                     doujinshi_id = doujinshi.id.value,
-                    image_uri = it,
+                    image_path = it,
                 )
             }
         }

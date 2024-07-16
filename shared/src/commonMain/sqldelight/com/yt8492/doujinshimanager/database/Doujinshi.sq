@@ -27,7 +27,7 @@ CREATE TABLE doujinshis_tags (
 CREATE TABLE doujinshis_images (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   doujinshi_id TEXT NOT NULL,
-  image_uri TEXT NOT NULL,
+  image_path TEXT NOT NULL,
   FOREIGN KEY (doujinshi_id) REFERENCES doujinshis(id)
 );
 
@@ -66,5 +66,5 @@ INSERT INTO doujinshis_tags (doujinshi_id, tag_id)
 VALUES (?, ?);
 
 insertDoujinshiImages:
-INSERT INTO doujinshis_images (doujinshi_id, image_uri)
+INSERT INTO doujinshis_images (doujinshi_id, image_path)
 VALUES (?, ?);

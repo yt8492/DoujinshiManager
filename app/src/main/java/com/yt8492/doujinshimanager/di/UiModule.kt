@@ -1,5 +1,6 @@
 package com.yt8492.doujinshimanager.di
 
+import com.yt8492.doujinshimanager.ui.detail.DetailViewModel
 import com.yt8492.doujinshimanager.ui.register.RegisterViewModel
 import com.yt8492.doujinshimanager.ui.top.TopViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -15,6 +16,12 @@ val uiModule = module {
             authorRepository = get(),
             tagRepository = get(),
             eventRepository = get(),
+            doujinshiRepository = get(),
+        )
+    }
+    viewModel { params ->
+        DetailViewModel(
+            id = params.get(),
             doujinshiRepository = get(),
         )
     }

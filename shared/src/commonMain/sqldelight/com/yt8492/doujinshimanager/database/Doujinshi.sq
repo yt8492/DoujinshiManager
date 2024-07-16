@@ -53,6 +53,18 @@ AND (:endDate ISNULL OR pub_date <= :endDate)
 LIMIT :limit
 OFFSET :offset;
 
+findById:
+SELECT *
+FROM doujinshis
+LEFT OUTER JOIN circles ON doujinshis.circle_id = circles.id
+LEFT OUTER JOIN events ON doujinshis.event_id = events.id
+LEFT OUTER JOIN doujinshis_authors da ON doujinshis.id = da.doujinshi_id
+LEFT OUTER JOIN authors ON da.author_id = authors.id
+LEFT OUTER JOIN doujinshis_tags dt ON doujinshis.id = dt.doujinshi_id
+LEFT OUTER JOIN tags ON dt.tag_id = tags.id
+LEFT OUTER JOIN doujinshis_images di ON doujinshis.id = di.doujinshi_id
+WHERE doujinshis.id = ?;
+
 insertDoujinshi:
 INSERT INTO doujinshis (id, title, circle_id, event_id, pub_date)
 VALUES (?, ?, ?, ?, ?);

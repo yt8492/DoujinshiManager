@@ -102,6 +102,65 @@ class DoujinshiRepositoryImpl(
         )
     }
 
+    override suspend fun get(id: DoujinshiId): Doujinshi {
+        val doujinshis = doujinshiQueries.findById(id.value).executeAsList()
+        val doujinshi = doujinshis.first()
+        return Doujinshi(
+            id = DoujinshiId(doujinshi.id),
+            title = doujinshi.title,
+            circle = if (doujinshi.id_ != null && doujinshi.name != null) {
+                Circle(
+                    id = CircleId(doujinshi.id_),
+                    name = doujinshi.name,
+                )
+            } else {
+                null
+            },
+            event = if (doujinshi.id__ != null && doujinshi.name_ != null) {
+                Event(
+                    id = EventId(doujinshi.id__),
+                    name = doujinshi.name_,
+                    term = if (doujinshi.start_at != null && doujinshi.end_at != null) {
+                        Period(
+                            start = LocalDate.parse(doujinshi.start_at),
+                            end = LocalDate.parse(doujinshi.end_at)
+                        )
+                    } else {
+                        null
+                    },
+                )
+            } else {
+                null
+            },
+            authors = doujinshis.mapNotNull {
+                if (it.id____ != null && it.name__ != null) {
+                    Author(
+                        id = AuthorId(it.id____),
+                        name = it.name__,
+                    )
+                } else {
+                    null
+                }
+            },
+            tags = doujinshis.mapNotNull {
+                if (it.id______ != null && it.name___ != null) {
+                    Tag(
+                        id = TagId(it.id______),
+                        name = it.name___,
+                    )
+                } else {
+                    null
+                }
+            },
+            pubDate = doujinshi.pub_date?.let {
+                LocalDate.parse(it)
+            },
+            imagePaths = doujinshis.mapNotNull {
+                it.image_path
+            },
+        )
+    }
+
     override suspend fun save(doujinshi: Doujinshi) {
         doujinshiQueries.transaction {
             doujinshiQueries.insertDoujinshi(

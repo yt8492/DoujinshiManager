@@ -23,6 +23,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DateRangePicker
@@ -394,18 +395,32 @@ fun RegisterTemplate(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     items(bindingModel.imagePaths) {
-                        AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(File(it))
-                                .build(),
-                            contentDescription = null,
-                            contentScale = ContentScale.FillWidth,
-                            modifier = Modifier
-                                .size(
-                                    width = 128.dp,
-                                    height = 96.dp,
-                                ),
-                        )
+                        Box(
+                            contentAlignment = Alignment.TopEnd,
+                        ) {
+                            AsyncImage(
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(File(it))
+                                    .build(),
+                                contentDescription = null,
+                                contentScale = ContentScale.FillWidth,
+                                modifier = Modifier
+                                    .size(
+                                        width = 128.dp,
+                                        height = 96.dp,
+                                    ),
+                            )
+                            IconButton(
+                                onClick = {
+                                    onDeleteImage(it)
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Cancel,
+                                    contentDescription = "削除",
+                                )
+                            }
+                        }
                     }
                     item {
                         Box(

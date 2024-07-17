@@ -61,6 +61,7 @@ import com.yt8492.doujinshimanager.shared.domain.model.Circle
 import com.yt8492.doujinshimanager.shared.domain.model.Event
 import com.yt8492.doujinshimanager.shared.domain.model.Tag
 import com.yt8492.doujinshimanager.ui.component.DeletableTextBox
+import com.yt8492.doujinshimanager.ui.component.InputSection
 import com.yt8492.doujinshimanager.ui.theme.DoujinshiManagerTheme
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
@@ -432,23 +433,6 @@ fun RegisterTemplate(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun InputSection(
-    label: String,
-    content: @Composable () -> Unit,
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelMedium,
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        content()
     }
 }
 

@@ -14,6 +14,7 @@ import com.yt8492.doujinshimanager.ui.converter.BindingModelConverter
 import com.yt8492.doujinshimanager.ui.detail.DetailDestination
 import com.yt8492.doujinshimanager.ui.lib.Destination
 import com.yt8492.doujinshimanager.ui.register.RegisterDestination
+import com.yt8492.doujinshimanager.ui.search.SearchDestination
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -86,7 +87,7 @@ class TopViewModel(
     }
 
     fun onClickSearch() {
-        // TODO
+        _destination.value = SearchDestination
     }
 
     fun onClickAddDoujinshi() {

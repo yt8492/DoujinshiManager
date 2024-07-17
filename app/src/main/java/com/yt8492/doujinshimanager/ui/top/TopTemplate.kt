@@ -66,7 +66,7 @@ fun TopTemplate(
         LaunchedEffect(listState) {
             snapshotFlow { listState.layoutInfo to listState.firstVisibleItemIndex }
                 .collect { (layoutInfo, firstVisibleItemIndex) ->
-                    if (layoutInfo.totalItemsCount == firstVisibleItemIndex + layoutInfo.visibleItemsInfo.size) {
+                    if (bindingModel.hasNextPage && layoutInfo.totalItemsCount == firstVisibleItemIndex + layoutInfo.visibleItemsInfo.size) {
                         loadMore()
                     }
                 }

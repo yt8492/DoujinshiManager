@@ -10,6 +10,8 @@ import com.yt8492.doujinshimanager.ui.detail.DetailDestination
 import com.yt8492.doujinshimanager.ui.detail.DetailPage
 import com.yt8492.doujinshimanager.ui.register.RegisterDestination
 import com.yt8492.doujinshimanager.ui.register.RegisterPage
+import com.yt8492.doujinshimanager.ui.search.SearchDestination
+import com.yt8492.doujinshimanager.ui.search.SearchPage
 import com.yt8492.doujinshimanager.ui.theme.DoujinshiManagerTheme
 import com.yt8492.doujinshimanager.ui.top.TopDestination
 import com.yt8492.doujinshimanager.ui.top.TopPage
@@ -34,6 +36,9 @@ fun MainApp() {
                     id = DoujinshiId(destination.id),
                     navController = navController,
                 )
+            }
+            composable<SearchDestination> {
+                SearchPage(navController)
             }
         }
     }

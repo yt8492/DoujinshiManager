@@ -39,7 +39,7 @@ fun TopTemplate(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "同人誌管理マン")
+                    Text(text = "ベッドの下")
                 },
                 actions = {
                     IconButton(

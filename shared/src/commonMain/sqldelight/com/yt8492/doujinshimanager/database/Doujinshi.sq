@@ -50,6 +50,7 @@ AND (:authorsIsEmpty OR authors.id IN :authorIds)
 AND (:tagsIsEmpty OR tags.id IN :tagIds)
 AND (:startDate ISNULL OR :startDate <= pub_date)
 AND (:endDate ISNULL OR pub_date <= :endDate)
+GROUP BY doujinshis.id
 LIMIT :limit
 OFFSET :offset;
 

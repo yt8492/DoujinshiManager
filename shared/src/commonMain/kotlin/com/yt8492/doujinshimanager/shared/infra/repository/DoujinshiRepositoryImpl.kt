@@ -77,7 +77,7 @@ class DoujinshiRepositoryImpl(
                         } else {
                             null
                         }
-                    },
+                    }.distinct(),
                     tags = doujinshis.mapNotNull {
                         if (it.id______ != null && it.name___ != null) {
                             Tag(
@@ -87,13 +87,13 @@ class DoujinshiRepositoryImpl(
                         } else {
                             null
                         }
-                    },
+                    }.distinct(),
                     pubDate = doujinshi.pub_date?.let {
                         LocalDate.parse(it)
                     },
                     imagePaths = doujinshis.mapNotNull {
                         it.image_path
-                    },
+                    }.distinct(),
                 )
             }
         return DoujinshiSearchResult(
@@ -141,7 +141,7 @@ class DoujinshiRepositoryImpl(
                 } else {
                     null
                 }
-            },
+            }.distinct(),
             tags = doujinshis.mapNotNull {
                 if (it.id______ != null && it.name___ != null) {
                     Tag(
@@ -151,13 +151,13 @@ class DoujinshiRepositoryImpl(
                 } else {
                     null
                 }
-            },
+            }.distinct(),
             pubDate = doujinshi.pub_date?.let {
                 LocalDate.parse(it)
             },
             imagePaths = doujinshis.mapNotNull {
                 it.image_path
-            },
+            }.distinct(),
         )
     }
 

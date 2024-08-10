@@ -87,7 +87,7 @@ class TopViewModel(
     }
 
     fun onClickSearch() {
-        _destination.value = SearchDestination
+        _destination.value = SearchDestination()
     }
 
     fun onClickAddDoujinshi() {

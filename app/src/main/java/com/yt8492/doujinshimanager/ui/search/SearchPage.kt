@@ -6,12 +6,17 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.yt8492.doujinshimanager.shared.domain.model.DoujinshiSearchSpec
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 fun SearchPage(
+    searchSpec: DoujinshiSearchSpec,
     navController: NavController,
-    viewModel: SearchViewModel = koinViewModel(),
+    viewModel: SearchViewModel = koinViewModel {
+        parametersOf(searchSpec)
+    },
 ) {
     val bindingModel by viewModel.bindingModel.collectAsStateWithLifecycle()
     val destination by viewModel.destination.collectAsStateWithLifecycle()

@@ -26,8 +26,9 @@ val uiModule = module {
             doujinshiRepository = get(),
         )
     }
-    viewModel {
+    viewModel { params ->
         SearchViewModel(
+            initialSearchSpec = params.get(),
             doujinshiRepository = get(),
             circleRepository = get(),
             authorRepository = get(),

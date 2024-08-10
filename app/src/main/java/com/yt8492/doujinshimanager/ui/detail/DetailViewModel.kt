@@ -11,6 +11,7 @@ import com.yt8492.doujinshimanager.shared.domain.model.Tag
 import com.yt8492.doujinshimanager.shared.domain.repository.DoujinshiRepository
 import com.yt8492.doujinshimanager.ui.lib.Destination
 import com.yt8492.doujinshimanager.ui.lib.PopBackDestination
+import com.yt8492.doujinshimanager.ui.search.SearchDestination
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,19 +34,27 @@ class DetailViewModel(
     }
 
     fun onClickCircle(circle: Circle) {
-
+        _destination.value = SearchDestination(
+            circleId = circle.id.value
+        )
     }
 
     fun onClickAuthor(author: Author) {
-
+        _destination.value = SearchDestination(
+            authorIds = listOf(author.id.value)
+        )
     }
 
     fun onClickTag(tag: Tag) {
-
+        _destination.value = SearchDestination(
+            tagIds = listOf(tag.id.value)
+        )
     }
 
     fun onClickEvent(event: Event) {
-
+        _destination.value = SearchDestination(
+            eventId = event.id.value
+        )
     }
 
     fun onBackPress() {

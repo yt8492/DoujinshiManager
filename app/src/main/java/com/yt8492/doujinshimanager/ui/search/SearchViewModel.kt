@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yt8492.doujinshimanager.shared.domain.model.Author
 import com.yt8492.doujinshimanager.shared.domain.model.Circle
+import com.yt8492.doujinshimanager.shared.domain.model.DoujinshiSearchSpec
 import com.yt8492.doujinshimanager.shared.domain.model.Event
 import com.yt8492.doujinshimanager.shared.domain.model.Tag
 import com.yt8492.doujinshimanager.shared.domain.repository.AuthorRepository
@@ -26,6 +27,7 @@ import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
 
 class SearchViewModel(
+    initialSearchSpec: DoujinshiSearchSpec,
     private val doujinshiRepository: DoujinshiRepository,
     private val circleRepository: CircleRepository,
     private val authorRepository: AuthorRepository,
@@ -39,6 +41,24 @@ class SearchViewModel(
     val destination: StateFlow<Destination?> = _destination.asStateFlow()
 
     private var suggestJob: Job? = null
+
+    init {
+        viewModelScope.launch {
+            val searchResult = doujinshiRepository.search(
+                searchSpec = initialSearchSpec,
+                page = 0,
+            )
+            _bindingModel.update {
+                it.copy(
+                    searchResult = searchResult.list.map {
+                        BindingModelConverter.convertToDoujinshiBindingModel(it)
+                    },
+                    page = 0,
+                    hasNextPage = searchResult.hasNextPage,
+                )
+            }
+        }
+    }
 
     fun onInputTitle(title: String) {
         viewModelScope.launch {

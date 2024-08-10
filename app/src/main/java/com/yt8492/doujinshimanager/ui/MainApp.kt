@@ -5,7 +5,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.yt8492.doujinshimanager.shared.domain.model.AuthorId
+import com.yt8492.doujinshimanager.shared.domain.model.CircleId
 import com.yt8492.doujinshimanager.shared.domain.model.DoujinshiId
+import com.yt8492.doujinshimanager.shared.domain.model.DoujinshiSearchSpec
+import com.yt8492.doujinshimanager.shared.domain.model.EventId
+import com.yt8492.doujinshimanager.shared.domain.model.TagId
 import com.yt8492.doujinshimanager.ui.detail.DetailDestination
 import com.yt8492.doujinshimanager.ui.detail.DetailPage
 import com.yt8492.doujinshimanager.ui.register.RegisterDestination
@@ -38,7 +43,18 @@ fun MainApp() {
                 )
             }
             composable<SearchDestination> {
-                SearchPage(navController)
+                val destination: SearchDestination = it.toRoute()
+                val searchSpec = DoujinshiSearchSpec(
+                    keyword = destination.title,
+                    circle = destination.circleId?.let(::CircleId),
+                    authors = destination.authorIds.map(::AuthorId),
+                    tags = destination.tagIds.map(::TagId),
+                    event = destination.eventId?.let(::EventId),
+                )
+                SearchPage(
+                    searchSpec = searchSpec,
+                    navController = navController,
+                )
             }
         }
     }

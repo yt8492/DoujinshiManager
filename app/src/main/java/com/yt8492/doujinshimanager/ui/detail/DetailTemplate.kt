@@ -18,6 +18,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -49,6 +50,7 @@ fun DetailTemplate(
     onClickAuthor: (Author) -> Unit,
     onClickTag: (Tag) -> Unit,
     onClickEvent: (Event) -> Unit,
+    onClickEdit: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -66,6 +68,13 @@ fun DetailTemplate(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = null,
                         )
+                    }
+                },
+                actions = {
+                    TextButton(
+                        onClick = onClickEdit,
+                    ) {
+                        Text(text = "編集")
                     }
                 }
             )
@@ -228,6 +237,7 @@ private fun DetailTemplatePreview() {
             onClickAuthor = {},
             onClickTag = {},
             onClickEvent = {},
+            onClickEdit = {},
         )
     }
 }

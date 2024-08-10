@@ -36,5 +36,6 @@ fun DetailPage(
         onClickAuthor = viewModel::onClickAuthor,
         onClickTag = viewModel::onClickTag,
         onClickEvent = viewModel::onClickEvent,
+        onClickEdit = viewModel::onClickEdit,
     )
 }

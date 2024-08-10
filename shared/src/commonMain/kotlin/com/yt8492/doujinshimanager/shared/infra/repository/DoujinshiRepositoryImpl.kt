@@ -190,4 +190,57 @@ class DoujinshiRepositoryImpl(
             }
         }
     }
+
+    override suspend fun update(doujinshi: Doujinshi) {
+        val saved = get(doujinshi.id)
+        val addedAuthors = doujinshi.authors - saved.authors
+        val removedAuthors = saved.authors - doujinshi.authors
+        val addedTags = doujinshi.tags - saved.tags
+        val removedTags = saved.tags - doujinshi.tags
+        val addedImages = doujinshi.imagePaths - saved.imagePaths
+        val removedImages = saved.imagePaths - doujinshi.imagePaths
+        doujinshiQueries.transaction {
+            doujinshiQueries.updateDoujinshi(
+                id = doujinshi.id.value,
+                title = doujinshi.title,
+                pub_date = doujinshi.pubDate?.toString(),
+            )
+            removedAuthors.forEach {
+                doujinshiQueries.removeDoujinshisAuthors(
+                    doujinshi_id = doujinshi.id.value,
+                    author_id = it.id.value,
+                )
+            }
+            addedAuthors.forEach {
+                doujinshiQueries.insertDoujinshisAuthors(
+                    doujinshi_id = doujinshi.id.value,
+                    author_id = it.id.value,
+                )
+            }
+            removedTags.forEach {
+                doujinshiQueries.removeDoujinshisTags(
+                    doujinshi_id = doujinshi.id.value,
+                    tag_id = it.id.value,
+                )
+            }
+            addedTags.forEach {
+                doujinshiQueries.insertDoujinshisTags(
+                    doujinshi_id = doujinshi.id.value,
+                    tag_id = it.id.value,
+                )
+            }
+            removedImages.forEach {
+                doujinshiQueries.removeDoujinshiImages(
+                    doujinshi_id = doujinshi.id.value,
+                    image_path = it,
+                )
+            }
+            addedImages.forEach {
+                doujinshiQueries.insertDoujinshiImages(
+                    doujinshi_id = doujinshi.id.value,
+                    image_path = it,
+                )
+            }
+        }
+    }
 }

@@ -13,6 +13,8 @@ import com.yt8492.doujinshimanager.shared.domain.model.EventId
 import com.yt8492.doujinshimanager.shared.domain.model.TagId
 import com.yt8492.doujinshimanager.ui.detail.DetailDestination
 import com.yt8492.doujinshimanager.ui.detail.DetailPage
+import com.yt8492.doujinshimanager.ui.edit.EditDestination
+import com.yt8492.doujinshimanager.ui.edit.EditPage
 import com.yt8492.doujinshimanager.ui.register.RegisterDestination
 import com.yt8492.doujinshimanager.ui.register.RegisterPage
 import com.yt8492.doujinshimanager.ui.search.SearchDestination
@@ -53,6 +55,14 @@ fun MainApp() {
                 )
                 SearchPage(
                     searchSpec = searchSpec,
+                    navController = navController,
+                )
+            }
+            composable<EditDestination> {
+                val destination: EditDestination = it.toRoute()
+                val id = DoujinshiId(destination.id)
+                EditPage(
+                    id = id,
                     navController = navController,
                 )
             }

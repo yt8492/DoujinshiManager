@@ -81,3 +81,17 @@ VALUES (?, ?);
 insertDoujinshiImages:
 INSERT INTO doujinshis_images (doujinshi_id, image_path)
 VALUES (?, ?);
+
+updateDoujinshi:
+UPDATE doujinshis SET title = ?, pub_date = ?
+WHERE id = ?;
+
+removeDoujinshisAuthors:
+DELETE FROM doujinshis_authors WHERE doujinshi_id = ? AND author_id = ?;
+
+removeDoujinshisTags:
+DELETE FROM doujinshis_tags WHERE doujinshi_id = ? AND tag_id = ?;
+
+removeDoujinshiImages:
+DELETE FROM doujinshis_images WHERE doujinshi_id = ? AND image_path = ?;
+

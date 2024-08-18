@@ -71,6 +71,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toLocalDateTime
 import java.io.File
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -366,8 +367,19 @@ fun RegisterTemplate(
                         Text(text = "選択")
                     }
                 }
-                val datePickerState = rememberDatePickerState()
                 if (isShowDatePicker) {
+                    val initMilli = remember(bindingModel.event) {
+                        bindingModel.event
+                            ?.term
+                            ?.start
+                            ?.toJavaLocalDate()
+                            ?.atStartOfDay(ZoneId.systemDefault())
+                            ?.toInstant()
+                            ?.toEpochMilli()
+                    }
+                    val datePickerState = rememberDatePickerState(
+                        initialSelectedDateMillis = initMilli,
+                    )
                     DatePickerDialog(
                         onDismissRequest = {
                             isShowDatePicker = false

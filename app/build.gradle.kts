@@ -50,7 +50,6 @@ android {
 
 dependencies {
     implementation(project(":shared"))
-    implementation(libs.kotlinx.datetime)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)

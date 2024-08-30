@@ -5,6 +5,7 @@ import com.yt8492.doujinshimanager.shared.domain.model.Circle
 import com.yt8492.doujinshimanager.shared.domain.model.DoujinshiId
 import com.yt8492.doujinshimanager.shared.domain.model.Event
 import com.yt8492.doujinshimanager.shared.domain.model.Tag
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 
 data class EditBindingModel(
@@ -16,6 +17,7 @@ data class EditBindingModel(
     val event: Event?,
     val pubDate: LocalDate?,
     val imagePaths: List<String>,
+    val createdAt: Instant,
     val inputCircle: String,
     val inputAuthor: String,
     val inputTag: String,

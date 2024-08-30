@@ -482,6 +482,7 @@ private fun RegisterTemplatePreview() {
                 event = null,
                 imagePaths = listOf(),
                 isShowEventDatePicker = false,
+                createdAt = Instant.parse("2024-08-13"),
             ),
             onInputTitle = {},
             onInputCircle = {},

@@ -1,6 +1,8 @@
 package com.yt8492.doujinshimanager.shared.domain.model
 
 import com.benasher44.uuid.uuid4
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 
 data class Doujinshi(
@@ -12,6 +14,7 @@ data class Doujinshi(
     val event: Event?,
     val pubDate: LocalDate?,
     val imagePaths: List<String>,
+    val createdAt: Instant,
 ) {
     companion object {
         fun create(
@@ -32,6 +35,7 @@ data class Doujinshi(
                 event = event,
                 pubDate = pubDate,
                 imagePaths = imagePaths,
+                createdAt = Clock.System.now(),
             )
         }
     }

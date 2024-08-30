@@ -14,8 +14,9 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-common"))
-                implementation(libs.kotlinx.datetime)
-                implementation(libs.uuid)
+                api(libs.kotlinx.datetime)
+                api(libs.uuid)
+                api(libs.napier)
                 implementation(libs.koin.core)
             }
         }

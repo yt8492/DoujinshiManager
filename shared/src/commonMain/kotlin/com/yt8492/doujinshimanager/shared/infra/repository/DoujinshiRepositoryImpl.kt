@@ -15,6 +15,7 @@ import com.yt8492.doujinshimanager.shared.domain.model.Period
 import com.yt8492.doujinshimanager.shared.domain.model.Tag
 import com.yt8492.doujinshimanager.shared.domain.model.TagId
 import com.yt8492.doujinshimanager.shared.domain.repository.DoujinshiRepository
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 
 class DoujinshiRepositoryImpl(
@@ -29,6 +30,7 @@ class DoujinshiRepositoryImpl(
             authorIds = searchSpec.authors.map { it.value },
             tagsIsEmpty = searchSpec.tags.isEmpty(),
             tagIds = searchSpec.tags.map { it.value },
+            tagsCount = searchSpec.tags.size.toLong(),
             startDate = searchSpec.pubTerm?.start?.toString(),
             endDate = searchSpec.pubTerm?.end?.toString(),
             limit = size.toLong(),
@@ -94,6 +96,7 @@ class DoujinshiRepositoryImpl(
                     imagePaths = doujinshis.mapNotNull {
                         it.image_path
                     }.distinct(),
+                    createdAt = Instant.parse(doujinshi.created_at),
                 )
             }
         return DoujinshiSearchResult(
@@ -158,6 +161,7 @@ class DoujinshiRepositoryImpl(
             imagePaths = doujinshis.mapNotNull {
                 it.image_path
             }.distinct(),
+            createdAt = Instant.parse(doujinshi.created_at),
         )
     }
 
@@ -168,7 +172,8 @@ class DoujinshiRepositoryImpl(
                 title = doujinshi.title,
                 circle_id = doujinshi.circle?.id?.value,
                 event_id = doujinshi.event?.id?.value,
-                pub_date = doujinshi.pubDate?.toString()
+                pub_date = doujinshi.pubDate?.toString(),
+                created_at = doujinshi.createdAt.toString()
             )
             doujinshi.authors.forEach {
                 doujinshiQueries.insertDoujinshisAuthors(

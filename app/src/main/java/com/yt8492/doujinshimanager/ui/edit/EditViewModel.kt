@@ -334,6 +334,7 @@ class EditViewModel(
                 event = current.event,
                 pubDate = current.pubDate,
                 imagePaths = current.imagePaths,
+                createdAt = current.createdAt,
             )
             doujinshiRepository.update(doujinshi)
             _destination.value = PopBackDestination

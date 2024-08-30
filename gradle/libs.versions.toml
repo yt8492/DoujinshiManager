@@ -15,6 +15,7 @@ koin = "3.5.3"
 kotlinxSerialization = "1.6.3"
 coil = "2.6.0"
 materialIcons = "1.6.8"
+napier = "2.7.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -41,6 +42,7 @@ sqldelight-androiddriver = { group = "app.cash.sqldelight", name = "android-driv
 koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
 koin-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
 coil = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+napier = { group = "io.github.aakira", name = "napier", version.ref = "napier" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

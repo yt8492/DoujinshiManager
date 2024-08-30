@@ -4,6 +4,7 @@ CREATE TABLE doujinshis (
   circle_id TEXT,
   event_id TEXT,
   pub_date TEXT,
+  created_at TEXT NOT NULL,
   FOREIGN KEY (circle_id) REFERENCES circles(id),
   FOREIGN KEY (event_id) REFERENCES events(id)
 );
@@ -51,6 +52,8 @@ AND (:tagsIsEmpty OR tags.id IN :tagIds)
 AND (:startDate ISNULL OR :startDate <= pub_date)
 AND (:endDate ISNULL OR pub_date <= :endDate)
 GROUP BY doujinshis.id
+HAVING :tagsIsEmpty OR COUNT(DISTINCT dt.tag_id) = :tagsCount
+ORDER BY doujinshis.created_at
 LIMIT :limit
 OFFSET :offset;
 
@@ -67,8 +70,8 @@ LEFT OUTER JOIN doujinshis_images di ON doujinshis.id = di.doujinshi_id
 WHERE doujinshis.id = ?;
 
 insertDoujinshi:
-INSERT INTO doujinshis (id, title, circle_id, event_id, pub_date)
-VALUES (?, ?, ?, ?, ?);
+INSERT INTO doujinshis (id, title, circle_id, event_id, pub_date, created_at)
+VALUES (?, ?, ?, ?, ?, ?);
 
 insertDoujinshisAuthors:
 INSERT INTO doujinshis_authors (doujinshi_id, author_id)

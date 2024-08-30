@@ -31,6 +31,7 @@ object BindingModelConverter {
             event = doujinshi.event,
             pubDate = doujinshi.pubDate,
             imagePaths = doujinshi.imagePaths,
+            createdAt = doujinshi.createdAt,
             inputCircle = "",
             inputAuthor = "",
             inputTag = "",

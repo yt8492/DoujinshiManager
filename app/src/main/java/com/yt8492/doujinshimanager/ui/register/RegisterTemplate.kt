@@ -24,6 +24,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.CameraEnhance
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -98,6 +99,7 @@ fun RegisterTemplate(
     onSelectPubDate: (LocalDate) -> Unit,
     onDeletePubDate: () -> Unit,
     onClickAddImage: () -> Unit,
+    onClickTakePicture: () -> Unit,
     onDeleteImage: (String) -> Unit,
     onClickRegister: () -> Unit,
     onDismiss: () -> Unit,
@@ -459,6 +461,29 @@ fun RegisterTemplate(
                             )
                         }
                     }
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .clickable {
+                                    onClickTakePicture()
+                                }
+                                .size(
+                                    width = 128.dp,
+                                    height = 96.dp,
+                                )
+                                .border(
+                                    width = 1.dp,
+                                    color = MaterialTheme.colorScheme.primary,
+                                ),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.CameraEnhance,
+                                contentDescription = "撮影",
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -503,6 +528,7 @@ private fun RegisterTemplatePreview() {
             onSelectPubDate = {},
             onDeletePubDate = {},
             onClickAddImage = {},
+            onClickTakePicture = {},
             onDeleteImage = {},
             onClickRegister = {},
             onDismiss = {},

@@ -1,5 +1,6 @@
 package com.yt8492.doujinshimanager.ui.register
 
+import android.net.Uri
 import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.activity.compose.BackHandler
@@ -9,9 +10,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
@@ -79,6 +83,35 @@ fun RegisterPage(
             Unit
         }
     }
+    val (takePictureImagePath, setTakePictureImagePath) = remember {
+        mutableStateOf<String?>(null)
+    }
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture(),
+    ) { success ->
+        if (success && takePictureImagePath != null) {
+            viewModel.onSelectImages(listOf(takePictureImagePath))
+        }
+        setTakePictureImagePath(null)
+    }
+    val onClickTakePicture = remember {
+        {
+            val dir = File(context.filesDir, "images")
+            if (!dir.exists()) {
+                dir.mkdir()
+            }
+            val file = File(dir, UUID.randomUUID().toString() + ".jpg")
+            val uri = FileProvider.getUriForFile(
+                context,
+                "com.yt8492.doujinshimanager.fileprovider",
+                file,
+            )
+            coroutineScope.launch {
+                cameraLauncher.launch(uri)
+            }
+            setTakePictureImagePath(file.path)
+        }
+    }
     RegisterTemplate(
         bindingModel = bindingModel,
         onInputTitle = viewModel::onInputTitle,
@@ -101,6 +134,7 @@ fun RegisterPage(
         onSelectPubDate = viewModel::onSelectPubDate,
         onDeletePubDate = viewModel::onDeletePubDate,
         onClickAddImage = onClickAddImage,
+        onClickTakePicture = onClickTakePicture,
         onDeleteImage = viewModel::onDeleteImage,
         onClickRegister = viewModel::onClickRegister,
         onDismiss = viewModel::onDismiss,

@@ -17,3 +17,7 @@ find:
 SELECT *
 FROM circles
 WHERE id = ?;
+
+update:
+UPDATE circles SET name = ?
+WHERE id = ?;

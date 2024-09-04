@@ -9,6 +9,7 @@ import com.yt8492.doujinshimanager.shared.domain.model.DoujinshiId
 import com.yt8492.doujinshimanager.shared.domain.model.Event
 import com.yt8492.doujinshimanager.shared.domain.model.Tag
 import com.yt8492.doujinshimanager.shared.domain.repository.DoujinshiRepository
+import com.yt8492.doujinshimanager.ui.circledetail.CircleDetailDestination
 import com.yt8492.doujinshimanager.ui.edit.EditDestination
 import com.yt8492.doujinshimanager.ui.lib.Destination
 import com.yt8492.doujinshimanager.ui.lib.PopBackDestination
@@ -35,9 +36,7 @@ class DetailViewModel(
     }
 
     fun onClickCircle(circle: Circle) {
-        _destination.value = SearchDestination(
-            circleId = circle.id.value
-        )
+        _destination.value = CircleDetailDestination(circle.id.value)
     }
 
     fun onClickAuthor(author: Author) {

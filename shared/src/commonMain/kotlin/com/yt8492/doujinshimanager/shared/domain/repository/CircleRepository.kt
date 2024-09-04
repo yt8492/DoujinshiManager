@@ -8,4 +8,5 @@ interface CircleRepository {
     suspend fun findByName(circleName: String): Circle?
     suspend fun get(id: CircleId): Circle
     suspend fun save(circle: Circle)
+    suspend fun update(circle: Circle)
 }

@@ -1,5 +1,6 @@
 package com.yt8492.doujinshimanager.di
 
+import com.yt8492.doujinshimanager.ui.circledetail.CircleDetailViewModel
 import com.yt8492.doujinshimanager.ui.detail.DetailViewModel
 import com.yt8492.doujinshimanager.ui.edit.EditViewModel
 import com.yt8492.doujinshimanager.ui.register.RegisterViewModel
@@ -45,6 +46,13 @@ val uiModule = module {
             authorRepository = get(),
             tagRepository = get(),
             eventRepository = get(),
+        )
+    }
+    viewModel { params ->
+        CircleDetailViewModel(
+            id = params.get(),
+            circleRepository = get(),
+            doujinshiRepository = get(),
         )
     }
 }

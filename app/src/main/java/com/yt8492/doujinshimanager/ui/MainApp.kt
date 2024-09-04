@@ -11,6 +11,8 @@ import com.yt8492.doujinshimanager.shared.domain.model.DoujinshiId
 import com.yt8492.doujinshimanager.shared.domain.model.DoujinshiSearchSpec
 import com.yt8492.doujinshimanager.shared.domain.model.EventId
 import com.yt8492.doujinshimanager.shared.domain.model.TagId
+import com.yt8492.doujinshimanager.ui.circledetail.CircleDetailDestination
+import com.yt8492.doujinshimanager.ui.circledetail.CircleDetailPage
 import com.yt8492.doujinshimanager.ui.detail.DetailDestination
 import com.yt8492.doujinshimanager.ui.detail.DetailPage
 import com.yt8492.doujinshimanager.ui.edit.EditDestination
@@ -62,6 +64,14 @@ fun MainApp() {
                 val destination: EditDestination = it.toRoute()
                 val id = DoujinshiId(destination.id)
                 EditPage(
+                    id = id,
+                    navController = navController,
+                )
+            }
+            composable<CircleDetailDestination> {
+                val destination: CircleDetailDestination = it.toRoute()
+                val id = CircleId(destination.circleId)
+                CircleDetailPage(
                     id = id,
                     navController = navController,
                 )

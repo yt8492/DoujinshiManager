@@ -36,4 +36,8 @@ class CircleRepositoryImpl(
     override suspend fun save(circle: Circle) {
         queries.insert(circle.id.value, circle.name)
     }
+
+    override suspend fun update(circle: Circle) {
+        queries.update(circle.name, circle.id.value)
+    }
 }

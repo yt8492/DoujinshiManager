@@ -52,6 +52,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -80,17 +83,21 @@ import java.time.format.DateTimeFormatter
 fun RegisterTemplate(
     bindingModel: RegisterBindingModel,
     onInputTitle: (String) -> Unit,
+    onFocusCircle: () -> Unit,
     onInputCircle: (String) -> Unit,
     onSelectCircle: (Circle) -> Unit,
     onDeleteCircle: () -> Unit,
+    onFocusAuthor: () -> Unit,
     onInputAuthor: (String) -> Unit,
     onEnterAuthor: () -> Unit,
     onSelectAuthor: (Author) -> Unit,
     onDeleteAuthor: (Author) -> Unit,
+    onFocusTag: () -> Unit,
     onInputTag: (String) -> Unit,
     onEnterTag: () -> Unit,
     onSelectTag: (Tag) -> Unit,
     onDeleteTag: (Tag) -> Unit,
+    onFocusEvent: () -> Unit,
     onInputEvent: (String) -> Unit,
     onEnterEventName: () -> Unit,
     onEnterEventDate: (LocalDate?, LocalDate?) -> Unit,
@@ -105,6 +112,9 @@ fun RegisterTemplate(
     onDismiss: () -> Unit,
     onBackPress: () -> Unit,
 ) {
+    val focusRequester = remember {
+        FocusRequester()
+    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -139,6 +149,7 @@ fun RegisterTemplate(
                 OutlinedTextField(
                     value = bindingModel.title,
                     onValueChange = onInputTitle,
+                    singleLine = true,
                 )
             }
             InputSection(label = "サークル名") {
@@ -152,6 +163,14 @@ fun RegisterTemplate(
                         OutlinedTextField(
                             value = bindingModel.inputCircle,
                             onValueChange = onInputCircle,
+                            singleLine = true,
+                            modifier = Modifier
+                                .focusRequester(focusRequester)
+                                .onFocusChanged {
+                                    if (it.isFocused) {
+                                        onFocusCircle()
+                                    }
+                                },
                         )
                     }
                     DropdownMenu(
@@ -181,6 +200,14 @@ fun RegisterTemplate(
                             OutlinedTextField(
                                 value = bindingModel.inputAuthor,
                                 onValueChange = onInputAuthor,
+                                singleLine = true,
+                                modifier = Modifier
+                                    .focusRequester(focusRequester)
+                                    .onFocusChanged {
+                                        if (it.isFocused) {
+                                            onFocusAuthor()
+                                        }
+                                    },
                             )
                             TextButton(
                                 onClick = onEnterAuthor,
@@ -229,6 +256,14 @@ fun RegisterTemplate(
                             OutlinedTextField(
                                 value = bindingModel.inputTag,
                                 onValueChange = onInputTag,
+                                singleLine = true,
+                                modifier = Modifier
+                                    .focusRequester(focusRequester)
+                                    .onFocusChanged {
+                                        if (it.isFocused) {
+                                            onFocusTag()
+                                        }
+                                    },
                             )
                             TextButton(
                                 onClick = onEnterTag,
@@ -284,6 +319,14 @@ fun RegisterTemplate(
                             OutlinedTextField(
                                 value = bindingModel.inputEvent,
                                 onValueChange = onInputEvent,
+                                singleLine = true,
+                                modifier = Modifier
+                                    .focusRequester(focusRequester)
+                                    .onFocusChanged {
+                                        if (it.isFocused) {
+                                            onFocusEvent()
+                                        }
+                                    },
                             )
                             TextButton(
                                 onClick = onEnterEventName,
@@ -509,17 +552,21 @@ private fun RegisterTemplatePreview() {
                     )
                 ),
             onInputTitle = {},
+            onFocusCircle = {},
             onInputCircle = {},
             onSelectCircle = {},
             onDeleteCircle = {},
+            onFocusAuthor = {},
             onInputAuthor = {},
             onEnterAuthor = {},
             onSelectAuthor = {},
             onDeleteAuthor = {},
+            onFocusTag = {},
             onInputTag = {},
             onEnterTag = {},
             onSelectTag = {},
             onDeleteTag = {},
+            onFocusEvent = {},
             onInputEvent = {},
             onEnterEventName = {},
             onEnterEventDate = { _, _ -> },

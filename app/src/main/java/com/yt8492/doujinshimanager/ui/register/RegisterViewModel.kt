@@ -46,17 +46,25 @@ class RegisterViewModel(
         }
     }
 
+    fun onFocusCircle() {
+        suggestCircles()
+    }
+
     fun onInputCircle(value: String) {
         _bindingModel.update {
             it.copy(
                 inputCircle = value,
             )
         }
+        suggestCircles(value)
+    }
+
+    private fun suggestCircles(input: String = "") {
         suggestJob?.cancel()
         suggestJob = viewModelScope.launch {
             _bindingModel.update {
                 it.copy(
-                    suggestedCircles = circleRepository.fuzzyFind(value),
+                    suggestedCircles = circleRepository.fuzzyFind(input),
                 )
             }
         }
@@ -80,17 +88,25 @@ class RegisterViewModel(
         }
     }
 
+    fun onFocusAuthor() {
+        suggestAuthors()
+    }
+
     fun onInputAuthor(value: String) {
         _bindingModel.update {
             it.copy(
                 inputAuthor = value,
             )
         }
+        suggestAuthors(value)
+    }
+
+    private fun suggestAuthors(input: String = "") {
         suggestJob?.cancel()
         suggestJob = viewModelScope.launch {
             _bindingModel.update {
                 it.copy(
-                    suggestedAuthors = authorRepository.fuzzyFind(value),
+                    suggestedAuthors = authorRepository.fuzzyFind(input),
                 )
             }
         }
@@ -134,17 +150,25 @@ class RegisterViewModel(
         }
     }
 
+    fun onFocusTag() {
+        suggestTags()
+    }
+
     fun onInputTag(value: String) {
         _bindingModel.update {
             it.copy(
                 inputTag = value,
             )
         }
+        suggestTags(value)
+    }
+
+    private fun suggestTags(input: String = "") {
         suggestJob?.cancel()
         suggestJob = viewModelScope.launch {
             _bindingModel.update {
                 it.copy(
-                    suggestedTags = tagRepository.fuzzyFind(value),
+                    suggestedTags = tagRepository.fuzzyFind(input),
                 )
             }
         }
@@ -188,17 +212,25 @@ class RegisterViewModel(
         }
     }
 
+    fun onFocusEvent() {
+        suggestEvents()
+    }
+
     fun onInputEvent(value: String) {
         _bindingModel.update {
             it.copy(
                 inputEvent = value,
             )
         }
+        suggestEvents(value)
+    }
+
+    private fun suggestEvents(input: String = "") {
         suggestJob?.cancel()
         suggestJob = viewModelScope.launch {
             _bindingModel.update {
                 it.copy(
-                    suggestedEvents = eventRepository.fuzzyFind(value)
+                    suggestedEvents = eventRepository.fuzzyFind(input)
                 )
             }
         }

@@ -10,7 +10,8 @@ VALUES (?, ?);
 search:
 SELECT *
 FROM circles
-WHERE name LIKE :searchQuery;
+WHERE name LIKE :searchQuery
+LIMIT 10;
 
 find:
 SELECT *

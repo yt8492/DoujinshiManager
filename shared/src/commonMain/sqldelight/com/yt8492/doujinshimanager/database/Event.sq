@@ -12,7 +12,8 @@ VALUES (?, ?, ?, ?);
 search:
 SELECT *
 FROM events
-WHERE name LIKE :searchQuery;
+WHERE name LIKE :searchQuery
+LIMIT 10;
 
 find:
 SELECT *

@@ -67,10 +67,14 @@ class CircleDetailViewModel(
     }
 
     fun onClickSave() {
+        val current = _uiState.value.bindingModel
+        if (current.circle.name == current.inputCircleName) {
+            return
+        }
         viewModelScope.launch {
             val circle = Circle(
                 id = id,
-                name = _uiState.value.bindingModel.inputCircleName,
+                name = current.inputCircleName,
             )
             circleRepository.update(circle)
             _uiState.update {
@@ -107,7 +111,11 @@ class CircleDetailViewModel(
                     loadingMore = true,
                 )
             }
+            val spec = DoujinshiSearchSpec(
+                circle = id,
+            )
             val result = doujinshiRepository.search(
+                searchSpec = spec,
                 page = page + 1,
             )
             _uiState.update {

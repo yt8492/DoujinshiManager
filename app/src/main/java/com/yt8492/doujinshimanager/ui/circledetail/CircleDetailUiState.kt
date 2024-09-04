@@ -5,7 +5,6 @@ import com.yt8492.doujinshimanager.shared.domain.model.CircleId
 
 data class CircleDetailUiState(
     val bindingModel: CircleDetailBindingModel,
-    val refreshing: Boolean,
     val loadingMore: Boolean,
 ) {
     companion object {
@@ -24,7 +23,6 @@ data class CircleDetailUiState(
                     hasNextPage = false,
                     isEditMode = false,
                 ),
-                refreshing = false,
                 loadingMore = false,
             )
         }

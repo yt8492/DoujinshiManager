@@ -98,3 +98,15 @@ DELETE FROM doujinshis_tags WHERE doujinshi_id = ? AND tag_id = ?;
 removeDoujinshiImages:
 DELETE FROM doujinshis_images WHERE doujinshi_id = ? AND image_path = ?;
 
+deleteDoujinshiAuthorsByDoujinshiId:
+DELETE FROM doujinshis_authors WHERE doujinshi_id = ?;
+
+deleteDoujinshiTagsByDoujinshiId:
+DELETE FROM doujinshis_tags WHERE doujinshi_id = ?;
+
+deleteDoujinshiImagesByDoujinshiId:
+DELETE FROM doujinshis_images WHERE doujinshi_id = ?;
+
+deleteDoujinshiById:
+DELETE FROM doujinshis WHERE id = ?;
+

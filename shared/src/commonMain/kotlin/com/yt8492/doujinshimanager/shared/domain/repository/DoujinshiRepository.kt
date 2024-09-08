@@ -14,4 +14,5 @@ interface DoujinshiRepository {
     suspend fun get(id: DoujinshiId): Doujinshi
     suspend fun save(doujinshi: Doujinshi)
     suspend fun update(doujinshi: Doujinshi)
+    suspend fun delete(id: DoujinshiId)
 }

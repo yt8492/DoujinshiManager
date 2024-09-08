@@ -341,6 +341,15 @@ class EditViewModel(
         }
     }
 
+    fun onClickDelete() {
+        suggestJob?.cancel()
+        suggestJob = null
+        viewModelScope.launch {
+            doujinshiRepository.delete(id)
+            _destination.value = PopBackDestination
+        }
+    }
+
     fun onDismiss() {
         suggestJob?.cancel()
         suggestJob = null

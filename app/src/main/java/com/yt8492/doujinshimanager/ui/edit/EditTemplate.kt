@@ -24,6 +24,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DateRangePicker
@@ -98,6 +100,7 @@ fun EditTemplate(
     onDeletePubDate: () -> Unit,
     onClickAddImage: () -> Unit,
     onDeleteImage: (String) -> Unit,
+    onClickDelete: () -> Unit,
     onClickSave: () -> Unit,
     onDismiss: () -> Unit,
     onBackPress: () -> Unit,
@@ -109,8 +112,17 @@ fun EditTemplate(
                     Text(text = "編集")
                 },
                 actions = {
-                    TextButton(onClick = onClickSave) {
-                        Text(text = "保存")
+                    IconButton(onClick = onClickDelete) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "削除",
+                        )
+                    }
+                    IconButton(onClick = onClickSave) {
+                        Icon(
+                            imageVector = Icons.Default.Save,
+                            contentDescription = "保存",
+                        )
                     }
                 },
                 navigationIcon = {
@@ -505,6 +517,7 @@ private fun RegisterTemplatePreview() {
             onDeletePubDate = {},
             onClickAddImage = {},
             onDeleteImage = {},
+            onClickDelete = {},
             onClickSave = {},
             onDismiss = {},
             onBackPress = {},

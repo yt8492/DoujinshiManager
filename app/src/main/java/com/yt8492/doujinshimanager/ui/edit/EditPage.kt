@@ -107,6 +107,7 @@ fun EditPage(
         onDeletePubDate = viewModel::onDeletePubDate,
         onClickAddImage = onClickAddImage,
         onDeleteImage = viewModel::onDeleteImage,
+        onClickDelete = viewModel::onClickDelete,
         onClickSave = viewModel::onClickSave,
         onDismiss = viewModel::onDismiss,
         onBackPress = viewModel::onBackPress,

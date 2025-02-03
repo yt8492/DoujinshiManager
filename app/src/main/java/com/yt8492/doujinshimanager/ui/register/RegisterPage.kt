@@ -1,6 +1,5 @@
 package com.yt8492.doujinshimanager.ui.register
 
-import android.net.Uri
 import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.activity.compose.BackHandler
@@ -15,7 +14,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.FileProvider
-import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
@@ -27,20 +25,32 @@ import java.util.UUID
 @Composable
 fun RegisterPage(
     navController: NavController,
-    viewModel: RegisterViewModel = koinViewModel(),
+    registerViewModel: RegisterViewModel = koinViewModel(),
+    pickerViewModel: DoujinshiPickerViewModel = koinViewModel(),
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val bindingModel by viewModel.bindingModel.collectAsStateWithLifecycle()
-    val destination by viewModel.destination.collectAsStateWithLifecycle()
+    val bindingModel by registerViewModel.bindingModel.collectAsStateWithLifecycle()
+    val destination by registerViewModel.destination.collectAsStateWithLifecycle()
+    val pickResult by pickerViewModel.pickResult.collectAsStateWithLifecycle()
+    val isShowDialog by pickerViewModel.isShow.collectAsStateWithLifecycle()
     LaunchedEffect(destination) {
         destination?.let {
             it.navigate(navController)
-            viewModel.onCompleteNavigation()
+            registerViewModel.onCompleteNavigation()
+        }
+    }
+    LaunchedEffect(pickResult) {
+        pickResult?.let {
+            registerViewModel.onPickResult(it)
         }
     }
     BackHandler {
-        viewModel.onBackPress()
+        if (isShowDialog) {
+            pickerViewModel.onDismissDialog()
+        } else {
+            registerViewModel.onBackPress()
+        }
     }
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(),
@@ -69,7 +79,7 @@ fun RegisterPage(
                 file.path
             }
         }
-        viewModel.onSelectImages(resolved)
+        registerViewModel.onSelectImages(resolved)
     }
     val onClickAddImage = remember {
         {
@@ -90,7 +100,7 @@ fun RegisterPage(
         contract = ActivityResultContracts.TakePicture(),
     ) { success ->
         if (success && takePictureImagePath != null) {
-            viewModel.onSelectImages(listOf(takePictureImagePath))
+            registerViewModel.onSelectImages(listOf(takePictureImagePath))
         }
         setTakePictureImagePath(null)
     }
@@ -114,34 +124,40 @@ fun RegisterPage(
     }
     RegisterTemplate(
         bindingModel = bindingModel,
-        onInputTitle = viewModel::onInputTitle,
-        onFocusCircle = viewModel::onFocusCircle,
-        onInputCircle = viewModel::onInputCircle,
-        onSelectCircle = viewModel::onSelectCircle,
-        onDeleteCircle = viewModel::onDeleteCircle,
-        onFocusAuthor = viewModel::onFocusAuthor,
-        onInputAuthor = viewModel::onInputAuthor,
-        onEnterAuthor = viewModel::onEnterAuthor,
-        onSelectAuthor = viewModel::onSelectAuthor,
-        onDeleteAuthor = viewModel::onDeleteAuthor,
-        onFocusTag = viewModel::onFocusTag,
-        onInputTag = viewModel::onInputTag,
-        onEnterTag = viewModel::onEnterTag,
-        onSelectTag = viewModel::onSelectTag,
-        onDeleteTag = viewModel::onDeleteTag,
-        onFocusEvent = viewModel::onFocusEvent,
-        onInputEvent = viewModel::onInputEvent,
-        onEnterEventName = viewModel::onEnterEventName,
-        onEnterEventDate = viewModel::onEnterEventDate,
-        onSelectEvent = viewModel::onSelectEvent,
-        onDeleteEvent = viewModel::onDeleteEvent,
-        onSelectPubDate = viewModel::onSelectPubDate,
-        onDeletePubDate = viewModel::onDeletePubDate,
+        onInputTitle = registerViewModel::onInputTitle,
+        onFocusCircle = registerViewModel::onFocusCircle,
+        onInputCircle = registerViewModel::onInputCircle,
+        onSelectCircle = registerViewModel::onSelectCircle,
+        onDeleteCircle = registerViewModel::onDeleteCircle,
+        onFocusAuthor = registerViewModel::onFocusAuthor,
+        onInputAuthor = registerViewModel::onInputAuthor,
+        onEnterAuthor = registerViewModel::onEnterAuthor,
+        onSelectAuthor = registerViewModel::onSelectAuthor,
+        onDeleteAuthor = registerViewModel::onDeleteAuthor,
+        onFocusTag = registerViewModel::onFocusTag,
+        onInputTag = registerViewModel::onInputTag,
+        onEnterTag = registerViewModel::onEnterTag,
+        onSelectTag = registerViewModel::onSelectTag,
+        onDeleteTag = registerViewModel::onDeleteTag,
+        onFocusEvent = registerViewModel::onFocusEvent,
+        onInputEvent = registerViewModel::onInputEvent,
+        onEnterEventName = registerViewModel::onEnterEventName,
+        onEnterEventDate = registerViewModel::onEnterEventDate,
+        onSelectEvent = registerViewModel::onSelectEvent,
+        onDeleteEvent = registerViewModel::onDeleteEvent,
+        onSelectPubDate = registerViewModel::onSelectPubDate,
+        onDeletePubDate = registerViewModel::onDeletePubDate,
         onClickAddImage = onClickAddImage,
         onClickTakePicture = onClickTakePicture,
-        onDeleteImage = viewModel::onDeleteImage,
-        onClickRegister = viewModel::onClickRegister,
-        onDismiss = viewModel::onDismiss,
-        onBackPress = viewModel::onBackPress,
+        onDeleteImage = registerViewModel::onDeleteImage,
+        onClickRegister = registerViewModel::onClickRegister,
+        onClickPick = pickerViewModel::showDialog,
+        onDismiss = registerViewModel::onDismiss,
+        onBackPress = registerViewModel::onBackPress,
     )
+    if (isShowDialog) {
+        DoujinshiPickerDialog(
+            viewModel = pickerViewModel,
+        )
+    }
 }

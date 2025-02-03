@@ -3,6 +3,7 @@ package com.yt8492.doujinshimanager.di
 import com.yt8492.doujinshimanager.ui.circledetail.CircleDetailViewModel
 import com.yt8492.doujinshimanager.ui.detail.DetailViewModel
 import com.yt8492.doujinshimanager.ui.edit.EditViewModel
+import com.yt8492.doujinshimanager.ui.register.DoujinshiPickerViewModel
 import com.yt8492.doujinshimanager.ui.register.RegisterViewModel
 import com.yt8492.doujinshimanager.ui.search.SearchViewModel
 import com.yt8492.doujinshimanager.ui.top.TopViewModel
@@ -53,6 +54,15 @@ val uiModule = module {
             id = params.get(),
             circleRepository = get(),
             doujinshiRepository = get(),
+        )
+    }
+    viewModel {
+        DoujinshiPickerViewModel(
+            doujinshiRepository = get(),
+            circleRepository = get(),
+            authorRepository = get(),
+            tagRepository = get(),
+            eventRepository = get(),
         )
     }
 }

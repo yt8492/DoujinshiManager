@@ -1,6 +1,5 @@
 package com.yt8492.doujinshimanager.ui.register
 
-import android.net.Uri
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -109,6 +108,7 @@ fun RegisterTemplate(
     onClickTakePicture: () -> Unit,
     onDeleteImage: (String) -> Unit,
     onClickRegister: () -> Unit,
+    onClickPick: () -> Unit,
     onDismiss: () -> Unit,
     onBackPress: () -> Unit,
 ) {
@@ -122,6 +122,9 @@ fun RegisterTemplate(
                     Text(text = "同人誌登録")
                 },
                 actions = {
+                    TextButton(onClick = onClickPick) {
+                        Text(text = "コピー")
+                    }
                     TextButton(onClick = onClickRegister) {
                         Text(text = "登録")
                     }
@@ -578,6 +581,7 @@ private fun RegisterTemplatePreview() {
             onClickTakePicture = {},
             onDeleteImage = {},
             onClickRegister = {},
+            onClickPick = {},
             onDismiss = {},
             onBackPress = {},
         )

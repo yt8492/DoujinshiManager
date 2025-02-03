@@ -13,6 +13,7 @@ import com.yt8492.doujinshimanager.shared.domain.repository.CircleRepository
 import com.yt8492.doujinshimanager.shared.domain.repository.DoujinshiRepository
 import com.yt8492.doujinshimanager.shared.domain.repository.EventRepository
 import com.yt8492.doujinshimanager.shared.domain.repository.TagRepository
+import com.yt8492.doujinshimanager.ui.bindingmodel.DoujinshiBindingModel
 import com.yt8492.doujinshimanager.ui.lib.Destination
 import com.yt8492.doujinshimanager.ui.lib.PopBackDestination
 import kotlinx.coroutines.Job
@@ -37,6 +38,30 @@ class RegisterViewModel(
     val destination: StateFlow<Destination?> = _destination.asStateFlow()
 
     private var suggestJob: Job? = null
+
+    fun onPickResult(result: DoujinshiBindingModel) {
+        viewModelScope.launch {
+            val doujinshi = doujinshiRepository.get(result.id)
+            _bindingModel.value = RegisterBindingModel(
+                title = doujinshi.title,
+                circle = doujinshi.circle,
+                authors = doujinshi.authors,
+                tags = doujinshi.tags,
+                event = doujinshi.event,
+                pubDate = doujinshi.pubDate,
+                imagePaths = doujinshi.imagePaths,
+                inputCircle = "",
+                inputAuthor = "",
+                inputTag = "",
+                inputEvent = "",
+                suggestedCircles = listOf(),
+                suggestedAuthors = listOf(),
+                suggestedTags = listOf(),
+                suggestedEvents = listOf(),
+                isShowEventDatePicker = false,
+            )
+        }
+    }
 
     fun onInputTitle(value: String) {
         _bindingModel.update {

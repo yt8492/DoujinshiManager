@@ -16,6 +16,9 @@ kotlinxSerialization = "1.6.3"
 coil = "2.6.0"
 materialIcons = "1.6.8"
 napier = "2.7.1"
+google-services = "4.4.2"
+firebaseBom = "33.15.0"
+crashlytics = "3.0.4"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -43,6 +46,9 @@ koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin"
 koin-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
 coil = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 napier = { group = "io.github.aakira", name = "napier", version.ref = "napier" }
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -52,3 +58,5 @@ jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "k
 jetbrainsKotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 sqlDelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }
 kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
+crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics" }

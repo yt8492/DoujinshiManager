@@ -6,6 +6,7 @@ import com.yt8492.doujinshimanager.ui.edit.EditViewModel
 import com.yt8492.doujinshimanager.ui.register.DoujinshiPickerViewModel
 import com.yt8492.doujinshimanager.ui.register.RegisterViewModel
 import com.yt8492.doujinshimanager.ui.search.SearchViewModel
+import com.yt8492.doujinshimanager.ui.setting.SettingViewModel
 import com.yt8492.doujinshimanager.ui.top.TopViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -64,5 +65,8 @@ val uiModule = module {
             tagRepository = get(),
             eventRepository = get(),
         )
+    }
+    viewModel {
+        SettingViewModel()
     }
 }

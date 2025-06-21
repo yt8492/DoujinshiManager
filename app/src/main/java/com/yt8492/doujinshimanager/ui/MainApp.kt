@@ -21,6 +21,8 @@ import com.yt8492.doujinshimanager.ui.register.RegisterDestination
 import com.yt8492.doujinshimanager.ui.register.RegisterPage
 import com.yt8492.doujinshimanager.ui.search.SearchDestination
 import com.yt8492.doujinshimanager.ui.search.SearchPage
+import com.yt8492.doujinshimanager.ui.setting.SettingDestination
+import com.yt8492.doujinshimanager.ui.setting.SettingPage
 import com.yt8492.doujinshimanager.ui.theme.DoujinshiManagerTheme
 import com.yt8492.doujinshimanager.ui.top.TopDestination
 import com.yt8492.doujinshimanager.ui.top.TopPage
@@ -73,6 +75,11 @@ fun MainApp() {
                 val id = CircleId(destination.circleId)
                 CircleDetailPage(
                     id = id,
+                    navController = navController,
+                )
+            }
+            composable<SettingDestination> {
+                SettingPage(
                     navController = navController,
                 )
             }

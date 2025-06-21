@@ -31,5 +31,6 @@ fun TopPage(
         onClickItem = viewModel::onClickItem,
         onClickSearch = viewModel::onClickSearch,
         onClickAddDoujinshi = viewModel::onClickAddDoujinshi,
+        onClickSetting = viewModel::onClickSetting,
     )
 }

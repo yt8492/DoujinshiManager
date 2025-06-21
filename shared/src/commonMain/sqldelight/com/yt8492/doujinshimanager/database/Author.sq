@@ -17,3 +17,10 @@ find:
 SELECT *
 FROM authors
 WHERE id = ?;
+
+getAll:
+SELECT *
+FROM authors;
+
+deleteAll:
+DELETE FROM authors;

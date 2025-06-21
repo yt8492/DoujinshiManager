@@ -15,6 +15,7 @@ import com.yt8492.doujinshimanager.ui.detail.DetailDestination
 import com.yt8492.doujinshimanager.ui.lib.Destination
 import com.yt8492.doujinshimanager.ui.register.RegisterDestination
 import com.yt8492.doujinshimanager.ui.search.SearchDestination
+import com.yt8492.doujinshimanager.ui.setting.SettingDestination
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -92,6 +93,10 @@ class TopViewModel(
 
     fun onClickAddDoujinshi() {
         _destination.value = RegisterDestination
+    }
+
+    fun onClickSetting() {
+        _destination.value = SettingDestination
     }
 
     fun onCompleteNavigation() {

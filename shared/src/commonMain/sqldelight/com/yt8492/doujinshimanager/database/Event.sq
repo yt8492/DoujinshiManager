@@ -19,3 +19,10 @@ find:
 SELECT *
 FROM events
 WHERE id = ?;
+
+getAll:
+SELECT *
+FROM events;
+
+deleteAll:
+DELETE FROM events;

@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -34,6 +35,7 @@ fun TopTemplate(
     onClickItem: (DoujinshiBindingModel) -> Unit,
     onClickSearch: () -> Unit,
     onClickAddDoujinshi: () -> Unit,
+    onClickSetting: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -48,6 +50,14 @@ fun TopTemplate(
                         Icon(
                             imageVector = Icons.Filled.Search,
                             contentDescription = "同人誌を検索する",
+                        )
+                    }
+                    IconButton(
+                        onClick = onClickSetting,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Settings,
+                            contentDescription = "設定",
                         )
                     }
                 }

@@ -21,3 +21,10 @@ WHERE id = ?;
 update:
 UPDATE circles SET name = ?
 WHERE id = ?;
+
+getAll:
+SELECT *
+FROM circles;
+
+deleteAll:
+DELETE FROM circles;

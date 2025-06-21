@@ -9,4 +9,6 @@ interface CircleRepository {
     suspend fun get(id: CircleId): Circle
     suspend fun save(circle: Circle)
     suspend fun update(circle: Circle)
+    suspend fun getAll(): List<Circle>
+    suspend fun deleteAll()
 }

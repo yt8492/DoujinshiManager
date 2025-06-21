@@ -110,3 +110,14 @@ DELETE FROM doujinshis_images WHERE doujinshi_id = ?;
 deleteDoujinshiById:
 DELETE FROM doujinshis WHERE id = ?;
 
+deleteAllDoujinshis:
+DELETE FROM doujinshis;
+
+deleteAllDoujinshiAuthors:
+DELETE FROM doujinshis_authors;
+
+deleteAllDoujinshiTags:
+DELETE FROM doujinshis_tags;
+
+deleteAllDoujinshiImages:
+DELETE FROM doujinshis_images;

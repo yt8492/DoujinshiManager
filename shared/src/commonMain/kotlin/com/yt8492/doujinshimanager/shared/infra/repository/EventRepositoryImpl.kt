@@ -34,11 +34,25 @@ class EventRepositoryImpl(
     }
 
     override suspend fun save(event: Event) {
-        queries.insert(
-            id = event.id.value,
-            name = event.name,
-            start_at = event.term?.start?.toString(),
-            end_at = event.term?.end?.toString(),
-        )
+        queries.transaction {
+            queries.insert(
+                id = event.id.value,
+                name = event.name,
+                start_at = event.term?.start?.toString(),
+                end_at = event.term?.end?.toString(),
+            )
+        }
+    }
+
+    override suspend fun getAll(): List<Event> {
+        return queries.getAll()
+            .executeAsList()
+            .map {
+                DBConverter.convertToModel(it)
+            }
+    }
+
+    override suspend fun deleteAll() {
+        queries.deleteAll()
     }
 }

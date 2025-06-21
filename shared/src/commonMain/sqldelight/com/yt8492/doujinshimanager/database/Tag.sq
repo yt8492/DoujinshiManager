@@ -17,3 +17,10 @@ find:
 SELECT *
 FROM tags
 WHERE id = ?;
+
+getAll:
+SELECT *
+FROM tags;
+
+deleteAll:
+DELETE FROM tags;

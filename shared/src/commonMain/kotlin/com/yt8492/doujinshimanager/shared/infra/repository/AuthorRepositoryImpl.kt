@@ -34,6 +34,20 @@ class AuthorRepositoryImpl(
     }
 
     override suspend fun save(author: Author) {
-        queries.insert(author.id.value, author.name)
+        queries.transaction {
+            queries.insert(author.id.value, author.name)
+        }
+    }
+
+    override suspend fun getAll(): List<Author> {
+        return queries.getAll()
+            .executeAsList()
+            .map {
+                DBConverter.convertToModel(it)
+            }
+    }
+
+    override suspend fun deleteAll() {
+        queries.deleteAll()
     }
 }

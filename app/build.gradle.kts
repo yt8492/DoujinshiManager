@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.google.services)
+    alias(libs.plugins.crashlytics)
 }
 
 android {

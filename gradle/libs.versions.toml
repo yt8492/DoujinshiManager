@@ -18,6 +18,7 @@ materialIcons = "1.6.8"
 napier = "2.7.1"
 google-services = "4.4.2"
 firebaseBom = "33.15.0"
+crashlytics = "3.0.4"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -58,3 +59,4 @@ jetbrainsKotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", vers
 sqlDelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }
 kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
+crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics" }

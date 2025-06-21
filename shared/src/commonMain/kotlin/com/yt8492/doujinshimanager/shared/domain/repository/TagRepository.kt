@@ -8,4 +8,6 @@ interface TagRepository {
     suspend fun findByName(tagName: String): Tag?
     suspend fun get(id: TagId): Tag
     suspend fun save(tag: Tag)
+    suspend fun getAll(): List<Tag>
+    suspend fun deleteAll()
 }

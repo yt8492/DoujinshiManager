@@ -24,11 +24,19 @@ fun SettingPage(
     val destination by viewModel.destination.collectAsStateWithLifecycle()
     val isExporting by viewModel.isExporting.collectAsStateWithLifecycle()
     val exportResult by viewModel.exportResult.collectAsStateWithLifecycle()
+    val isImporting by viewModel.isImporting.collectAsStateWithLifecycle()
+    val importResult by viewModel.importResult.collectAsStateWithLifecycle()
     
     val createDocumentLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/zip")
     ) { uri ->
         uri?.let { viewModel.exportData(it) }
+    }
+    
+    val openDocumentLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let { viewModel.importData(it) }
     }
     
     LaunchedEffect(destination) {
@@ -46,7 +54,9 @@ fun SettingPage(
             val fileName = "doujinshi_export_$timestamp.zip"
             createDocumentLauncher.launch(fileName)
         },
-        onClickImportData = viewModel::onClickImportData,
+        onClickImportData = {
+            openDocumentLauncher.launch(arrayOf("application/zip"))
+        },
     )
     
     // エクスポート中のプログレスダイアログ
@@ -79,6 +89,42 @@ fun SettingPage(
             },
             confirmButton = {
                 TextButton(onClick = { viewModel.clearExportResult() }) {
+                    Text("OK")
+                }
+            }
+        )
+    }
+    
+    // インポート中のプログレスダイアログ
+    if (isImporting) {
+        AlertDialog(
+            onDismissRequest = { },
+            title = { Text("インポート中") },
+            text = {
+                CircularProgressIndicator()
+            },
+            confirmButton = { }
+        )
+    }
+    
+    // インポート結果のダイアログ
+    importResult?.let { result ->
+        AlertDialog(
+            onDismissRequest = { viewModel.clearImportResult() },
+            title = { 
+                Text(if (result.isSuccess) "インポート完了" else "インポート失敗") 
+            },
+            text = { 
+                Text(
+                    if (result.isSuccess) {
+                        "データのインポートが完了しました。"
+                    } else {
+                        "インポート中にエラーが発生しました: ${result.exceptionOrNull()?.message}"
+                    }
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { viewModel.clearImportResult() }) {
                     Text("OK")
                 }
             }

@@ -203,8 +203,8 @@ class ExportService(
     }
 
     private suspend fun exportCircles(zipOut: ZipOutputStream) {
-        // fuzzyFindで空文字列を検索して全てのサークルを取得
-        val circles = circleRepository.fuzzyFind("")
+        // getAllメソッドで全てのサークルを取得
+        val circles = circleRepository.getAll()
             .map { 
                 ExportCircle(
                     id = it.id.value,
@@ -220,8 +220,8 @@ class ExportService(
     }
 
     private suspend fun exportAuthors(zipOut: ZipOutputStream) {
-        // fuzzyFindで空文字列を検索して全ての作者を取得
-        val authors = authorRepository.fuzzyFind("")
+        // getAllメソッドで全ての作者を取得
+        val authors = authorRepository.getAll()
             .map { 
                 ExportAuthor(
                     id = it.id.value,
@@ -237,8 +237,8 @@ class ExportService(
     }
 
     private suspend fun exportTags(zipOut: ZipOutputStream) {
-        // fuzzyFindで空文字列を検索して全てのタグを取得
-        val tags = tagRepository.fuzzyFind("")
+        // getAllメソッドで全てのタグを取得
+        val tags = tagRepository.getAll()
             .map { 
                 ExportTag(
                     id = it.id.value,
@@ -254,8 +254,8 @@ class ExportService(
     }
 
     private suspend fun exportEvents(zipOut: ZipOutputStream) {
-        // fuzzyFindで空文字列を検索して全てのイベントを取得
-        val events = eventRepository.fuzzyFind("")
+        // getAllメソッドで全てのイベントを取得
+        val events = eventRepository.getAll()
             .map { 
                 ExportEvent(
                     id = it.id.value,

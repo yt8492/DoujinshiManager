@@ -7,6 +7,7 @@ import com.yt8492.doujinshimanager.ui.register.DoujinshiPickerViewModel
 import com.yt8492.doujinshimanager.ui.register.RegisterViewModel
 import com.yt8492.doujinshimanager.ui.search.SearchViewModel
 import com.yt8492.doujinshimanager.ui.setting.ExportService
+import com.yt8492.doujinshimanager.ui.setting.ImportService
 import com.yt8492.doujinshimanager.ui.setting.SettingViewModel
 import com.yt8492.doujinshimanager.ui.top.TopViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -77,9 +78,20 @@ val uiModule = module {
             eventRepository = get()
         )
     }
+    single {
+        ImportService(
+            context = get(),
+            doujinshiRepository = get(),
+            circleRepository = get(),
+            authorRepository = get(),
+            tagRepository = get(),
+            eventRepository = get()
+        )
+    }
     viewModel {
         SettingViewModel(
-            exportService = get()
+            exportService = get(),
+            importService = get()
         )
     }
 }

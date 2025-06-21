@@ -34,9 +34,23 @@ class TagRepositoryImpl(
     }
 
     override suspend fun save(tag: Tag) {
-        queries.insert(
-            id = tag.id.value,
-            name = tag.name,
-        )
+        queries.transaction {
+            queries.insert(
+                id = tag.id.value,
+                name = tag.name,
+            )
+        }
+    }
+
+    override suspend fun getAll(): List<Tag> {
+        return queries.getAll()
+            .executeAsList()
+            .map {
+                DBConverter.convertToModel(it)
+            }
+    }
+
+    override suspend fun deleteAll() {
+        queries.deleteAll()
     }
 }

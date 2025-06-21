@@ -34,10 +34,24 @@ class CircleRepositoryImpl(
     }
 
     override suspend fun save(circle: Circle) {
-        queries.insert(circle.id.value, circle.name)
+        queries.transaction {
+            queries.insert(circle.id.value, circle.name)
+        }
     }
 
     override suspend fun update(circle: Circle) {
         queries.update(circle.name, circle.id.value)
+    }
+
+    override suspend fun getAll(): List<Circle> {
+        return queries.getAll()
+            .executeAsList()
+            .map {
+                DBConverter.convertToModel(it)
+            }
+    }
+
+    override suspend fun deleteAll() {
+        queries.deleteAll()
     }
 }

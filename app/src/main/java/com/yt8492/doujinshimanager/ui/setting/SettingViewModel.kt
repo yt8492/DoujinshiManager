@@ -10,7 +10,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class SettingViewModel(
-    private val exportService: ExportService
+    private val exportService: ExportService,
+    private val importService: ImportService
 ) : ViewModel() {
     private val _destination = MutableStateFlow<Destination?>(null)
     val destination: StateFlow<Destination?> = _destination.asStateFlow()
@@ -20,6 +21,12 @@ class SettingViewModel(
 
     private val _exportResult = MutableStateFlow<Result<Unit>?>(null)
     val exportResult: StateFlow<Result<Unit>?> = _exportResult.asStateFlow()
+
+    private val _isImporting = MutableStateFlow(false)
+    val isImporting: StateFlow<Boolean> = _isImporting.asStateFlow()
+
+    private val _importResult = MutableStateFlow<Result<Unit>?>(null)
+    val importResult: StateFlow<Result<Unit>?> = _importResult.asStateFlow()
 
     fun onCompleteNavigation() {
         _destination.value = null
@@ -45,6 +52,21 @@ class SettingViewModel(
     }
 
     fun onClickImportData() {
-        // TODO: データインポート処理を実装
+        // ActivityResultContractsを使用するため、UIから呼び出される
+    }
+
+    fun importData(uri: Uri) {
+        viewModelScope.launch {
+            _isImporting.value = true
+            _importResult.value = null
+            
+            val result = importService.importData(uri)
+            _importResult.value = result
+            _isImporting.value = false
+        }
+    }
+
+    fun clearImportResult() {
+        _importResult.value = null
     }
 }

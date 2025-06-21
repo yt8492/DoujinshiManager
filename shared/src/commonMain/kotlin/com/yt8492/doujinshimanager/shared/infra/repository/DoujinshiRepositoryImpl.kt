@@ -257,4 +257,13 @@ class DoujinshiRepositoryImpl(
             doujinshiQueries.deleteDoujinshiById(id.value)
         }
     }
+
+    override suspend fun deleteAll() {
+        doujinshiQueries.transaction {
+            doujinshiQueries.deleteAllDoujinshiAuthors()
+            doujinshiQueries.deleteAllDoujinshiTags()
+            doujinshiQueries.deleteAllDoujinshiImages()
+            doujinshiQueries.deleteAllDoujinshis()
+        }
+    }
 }

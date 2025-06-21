@@ -8,4 +8,6 @@ interface EventRepository {
     suspend fun findByName(eventName: String): Event?
     suspend fun get(id: EventId): Event
     suspend fun save(event: Event)
+    suspend fun getAll(): List<Event>
+    suspend fun deleteAll()
 }

@@ -32,16 +32,12 @@ class SettingViewModel(
         _destination.value = null
     }
 
-    fun onClickExportData() {
-        // ActivityResultContractsを使用するため、UIから呼び出される
-    }
-
     fun exportData(uri: Uri) {
         viewModelScope.launch {
             _isExporting.value = true
             _exportResult.value = null
             
-            val result = exportService.exportData(uri)
+            val result = exportService.export(uri)
             _exportResult.value = result
             _isExporting.value = false
         }

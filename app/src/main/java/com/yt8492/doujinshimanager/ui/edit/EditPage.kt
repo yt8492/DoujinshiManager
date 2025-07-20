@@ -1,6 +1,5 @@
 package com.yt8492.doujinshimanager.ui.edit
 
-import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -14,6 +13,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.yt8492.doujinshimanager.Constants
 import com.yt8492.doujinshimanager.shared.domain.model.DoujinshiId
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -48,7 +48,7 @@ fun EditPage(
     ) { uris ->
         val resolved = uris.mapNotNull { uri ->
             context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                val dir = File(context.filesDir, "images")
+                val dir = File(context.filesDir, Constants.imagesDirectoryName)
                 if (!dir.exists()) {
                     dir.mkdir()
                 }
@@ -61,7 +61,6 @@ fun EditPage(
                     val buffer = ByteArray(8192)
                     do {
                         read = inputStream.read(buffer, 0, 8192)
-                        Log.d("hogehoge", "read: $read")
                         if (read != -1) {
                             it.write(buffer, 0, read)
                         }

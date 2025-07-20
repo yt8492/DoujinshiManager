@@ -1,6 +1,5 @@
 package com.yt8492.doujinshimanager.ui.register
 
-import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -16,6 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.FileProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.yt8492.doujinshimanager.Constants
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import java.io.File
@@ -57,7 +57,7 @@ fun RegisterPage(
     ) { uris ->
         val resolved = uris.mapNotNull { uri ->
             context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                val dir = File(context.filesDir, "images")
+                val dir = File(context.filesDir, Constants.imagesDirectoryName)
                 if (!dir.exists()) {
                     dir.mkdir()
                 }
@@ -70,7 +70,6 @@ fun RegisterPage(
                     val buffer = ByteArray(8192)
                     do {
                         read = inputStream.read(buffer, 0, 8192)
-                        Log.d("hogehoge", "read: $read")
                         if (read != -1) {
                             it.write(buffer, 0, read)
                         }
@@ -106,14 +105,14 @@ fun RegisterPage(
     }
     val onClickTakePicture = remember {
         {
-            val dir = File(context.filesDir, "images")
+            val dir = File(context.filesDir, Constants.imagesDirectoryName)
             if (!dir.exists()) {
                 dir.mkdir()
             }
             val file = File(dir, UUID.randomUUID().toString() + ".jpg")
             val uri = FileProvider.getUriForFile(
                 context,
-                "com.yt8492.doujinshimanager.fileprovider",
+                Constants.fileProviderName,
                 file,
             )
             coroutineScope.launch {

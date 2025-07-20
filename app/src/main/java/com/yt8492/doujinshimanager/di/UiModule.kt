@@ -71,21 +71,11 @@ val uiModule = module {
     single {
         ExportService(
             context = get(),
-            doujinshiRepository = get(),
-            circleRepository = get(),
-            authorRepository = get(),
-            tagRepository = get(),
-            eventRepository = get()
         )
     }
     single {
         ImportService(
             context = get(),
-            doujinshiRepository = get(),
-            circleRepository = get(),
-            authorRepository = get(),
-            tagRepository = get(),
-            eventRepository = get()
         )
     }
     viewModel {

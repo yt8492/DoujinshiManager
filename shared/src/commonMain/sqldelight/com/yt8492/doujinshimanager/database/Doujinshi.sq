@@ -69,6 +69,12 @@ LEFT OUTER JOIN tags ON dt.tag_id = tags.id
 LEFT OUTER JOIN doujinshis_images di ON doujinshis.id = di.doujinshi_id
 WHERE doujinshis.id = ?;
 
+findDoujinshiImages:
+SELECT *
+FROM doujinshis_images
+LIMIT :limit
+OFFSET :offset;
+
 insertDoujinshi:
 INSERT INTO doujinshis (id, title, circle_id, event_id, pub_date, created_at)
 VALUES (?, ?, ?, ?, ?, ?);
@@ -87,6 +93,10 @@ VALUES (?, ?);
 
 updateDoujinshi:
 UPDATE doujinshis SET title = ?, pub_date = ?
+WHERE id = ?;
+
+updateDoujinshiImage:
+UPDATE doujinshis_images SET image_path = ?
 WHERE id = ?;
 
 removeDoujinshisAuthors:

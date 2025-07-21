@@ -11,6 +11,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDateTime
 import org.koin.androidx.compose.koinViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -49,6 +51,7 @@ fun SettingPage(
     SettingTemplate(
         onClickBack = { navController.popBackStack() },
         onClickExportData = {
+            Clock.System.now()
             val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
             val timestamp = dateFormat.format(Date())
             val fileName = "doujinshi_export_$timestamp.zip"

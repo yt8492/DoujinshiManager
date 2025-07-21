@@ -14,7 +14,8 @@ class ExportService(
         return runCatching {
             val dbFile = context.getDatabasePath(Constants.databaseName)
             val imagesDir = File(context.filesDir, Constants.imagesDirectoryName)
-            context.contentResolver.openOutputStream(outputUri)?.use { outputStream ->
+            val contentResolver = context.contentResolver
+            contentResolver.openOutputStream(outputUri)?.use { outputStream ->
                 ZipOutputStream(outputStream).use { zipOut ->
                     dbFile.inputStream().use { dbInputStream ->
                         val zipEntry = ZipEntry(Constants.databaseName)
@@ -24,7 +25,7 @@ class ExportService(
                     }
                     imagesDir.list()?.forEach { fileName ->
                         val image = File(imagesDir, fileName)
-                        if (image.isDirectory) {
+                        if (!image.isFile) {
                             return@forEach
                         }
                         val zipEntry = ZipEntry("${Constants.imagesDirectoryName}/$fileName")

@@ -13,7 +13,6 @@ import java.util.zip.ZipInputStream
 
 class ImportService(
     private val context: Context,
-
 ) {
     fun importData(inputUri: Uri): Result<Unit> {
         return runCatching {
@@ -49,24 +48,28 @@ class ImportService(
                     }
                 }
             }
-        }
-        AndroidSqliteDriver(Database.Schema, context, Constants.databaseName).use { driver ->
-            val queries = DoujinshiQueries(driver)
-            val imagesDir = File(context.filesDir, Constants.imagesDirectoryName)
-            var offset = 0L
-            var hasNextPage = true
-            do {
-                val result = queries.findDoujinshiImages(limit = 30, offset = offset).executeAsList()
-                result.forEach { image ->
-                    val fileName = image.image_path.substringAfter("${Constants.imagesDirectoryName}/")
-                    queries.updateDoujinshiImage(
-                        id = image.id,
-                        image_path = "${imagesDir.path}/$fileName",
-                    )
-                }
-                offset = offset + result.size
-                hasNextPage = result.isNotEmpty()
-            } while (hasNextPage)
+            AndroidSqliteDriver(
+                schema = Database.Schema,
+                context = context,
+                name = Constants.databaseName,
+            ).use { driver ->
+                val queries = DoujinshiQueries(driver)
+                val imagesDir = File(context.filesDir, Constants.imagesDirectoryName)
+                var offset = 0L
+                var hasNextPage = true
+                do {
+                    val result = queries.findDoujinshiImages(limit = 30, offset = offset).executeAsList()
+                    result.forEach { image ->
+                        val fileName = image.image_path.substringAfter("${Constants.imagesDirectoryName}/")
+                        queries.updateDoujinshiImage(
+                            id = image.id,
+                            image_path = "${imagesDir.path}/$fileName",
+                        )
+                    }
+                    offset = offset + result.size
+                    hasNextPage = result.isNotEmpty()
+                } while (hasNextPage)
+            }
         }
     }
 }

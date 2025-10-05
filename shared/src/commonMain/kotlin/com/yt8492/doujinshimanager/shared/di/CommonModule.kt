@@ -18,19 +18,19 @@ import com.yt8492.doujinshimanager.shared.infra.repository.TagRepositoryImpl
 import org.koin.dsl.module
 
 val commonModule = module { 
-    single<AuthorRepository> {
+    factory<AuthorRepository> {
         AuthorRepositoryImpl(AuthorQueries(get()))
     }
-    single<CircleRepository> {
+    factory<CircleRepository> {
         CircleRepositoryImpl(CircleQueries(get()))
     }
-    single<DoujinshiRepository> {
+    factory<DoujinshiRepository> {
         DoujinshiRepositoryImpl(DoujinshiQueries(get()))
     }
-    single<EventRepository> {
+    factory<EventRepository> {
         EventRepositoryImpl(EventQueries(get()))
     }
-    single<TagRepository> {
+    factory<TagRepository> {
         TagRepositoryImpl(TagQueries(get()))
     }
 }

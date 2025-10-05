@@ -1,5 +1,7 @@
 package com.yt8492.doujinshimanager.ui.setting
 
+import android.app.Activity
+import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.AlertDialog
@@ -9,8 +11,13 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.yt8492.doujinshimanager.MainActivity
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import org.koin.androidx.compose.koinViewModel
@@ -23,6 +30,8 @@ fun SettingPage(
     navController: NavController,
     viewModel: SettingViewModel = koinViewModel(),
 ) {
+    val activity = LocalContext.current as Activity
+    val coroutineScope = rememberCoroutineScope()
     val destination by viewModel.destination.collectAsStateWithLifecycle()
     val isExporting by viewModel.isExporting.collectAsStateWithLifecycle()
     val exportResult by viewModel.exportResult.collectAsStateWithLifecycle()
@@ -127,7 +136,16 @@ fun SettingPage(
                 )
             },
             confirmButton = {
-                TextButton(onClick = { viewModel.clearImportResult() }) {
+                TextButton(
+                    onClick = {
+                        coroutineScope.launch {
+                            viewModel.clearImportResult()
+                            val intent = Intent(activity, MainActivity::class.java)
+                            activity.finishAndRemoveTask()
+                            activity.startActivity(intent)
+                        }
+                    },
+                ) {
                     Text("OK")
                 }
             }

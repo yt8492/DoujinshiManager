@@ -8,7 +8,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 val infraModule = module {
-    single<SqlDriver> {
+    factory<SqlDriver> {
         AndroidSqliteDriver(Database.Schema, androidContext(), Constants.databaseName)
     }
 }

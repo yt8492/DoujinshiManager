@@ -68,12 +68,12 @@ val uiModule = module {
             eventRepository = get(),
         )
     }
-    single {
+    factory {
         ExportService(
             context = get(),
         )
     }
-    single {
+    factory {
         ImportService(
             context = get(),
         )

@@ -9,12 +9,12 @@ plugins {
 
 android {
     namespace = "com.yt8492.doujinshimanager"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.yt8492.doujinshimanager"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = Release.versionCode
         versionName = Release.versionName
 

@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -7,6 +9,30 @@ plugins {
     alias(libs.plugins.crashlytics)
 }
 
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.isFile) {
+        file.inputStream().use(::load)
+    }
+}
+
+fun findConfigurationProperty(name: String): String? {
+    return providers.gradleProperty(name).orNull
+        ?: localProperties.getProperty(name)
+        ?: providers.environmentVariable(name).orNull
+}
+
+val releaseStoreFile = findConfigurationProperty("RELEASE_STORE_FILE")
+val releaseStorePassword = findConfigurationProperty("RELEASE_STORE_PASSWORD")
+val releaseKeyAlias = findConfigurationProperty("RELEASE_KEY_ALIAS")
+val releaseKeyPassword = findConfigurationProperty("RELEASE_KEY_PASSWORD")
+val hasReleaseSigningConfiguration = listOf(
+    releaseStoreFile,
+    releaseStorePassword,
+    releaseKeyAlias,
+    releaseKeyPassword,
+).all { !it.isNullOrBlank() }
+
 android {
     namespace = "com.yt8492.doujinshimanager"
     compileSdk = 36
@@ -15,8 +41,8 @@ android {
         applicationId = "com.yt8492.doujinshimanager"
         minSdk = 26
         targetSdk = 36
-        versionCode = Release.versionCode
-        versionName = Release.versionName
+        versionCode = providers.gradleProperty("VERSION_CODE").get().toInt()
+        versionName = providers.gradleProperty("VERSION_NAME").get()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -24,9 +50,23 @@ android {
         }
     }
 
+    signingConfigs {
+        if (hasReleaseSigningConfiguration) {
+            create("release") {
+                storeFile = rootProject.file(releaseStoreFile!!)
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            if (hasReleaseSigningConfiguration) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -48,6 +88,28 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+}
+
+val validateReleaseSigningConfiguration = tasks.register("validateReleaseSigningConfiguration") {
+    doLast {
+        val missingProperties = buildList {
+            if (releaseStoreFile.isNullOrBlank()) add("RELEASE_STORE_FILE")
+            if (releaseStorePassword.isNullOrBlank()) add("RELEASE_STORE_PASSWORD")
+            if (releaseKeyAlias.isNullOrBlank()) add("RELEASE_KEY_ALIAS")
+            if (releaseKeyPassword.isNullOrBlank()) add("RELEASE_KEY_PASSWORD")
+        }
+        check(missingProperties.isEmpty()) {
+            "Release signing properties are required: ${missingProperties.joinToString()}. " +
+                "Set them in local.properties, ~/.gradle/gradle.properties, or environment variables."
+        }
+        check(rootProject.file(releaseStoreFile!!).isFile) {
+            "Release keystore does not exist: ${rootProject.file(releaseStoreFile).path}"
+        }
+    }
+}
+
+tasks.matching { it.name == "preReleaseBuild" }.configureEach {
+    dependsOn(validateReleaseSigningConfiguration)
 }
 
 dependencies {

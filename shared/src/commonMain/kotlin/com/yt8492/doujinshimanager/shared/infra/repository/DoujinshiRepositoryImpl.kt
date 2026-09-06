@@ -105,9 +105,9 @@ class DoujinshiRepositoryImpl(
         )
     }
 
-    override suspend fun get(id: DoujinshiId): Doujinshi {
+    override suspend fun get(id: DoujinshiId): Doujinshi? {
         val doujinshis = doujinshiQueries.findById(id.value).executeAsList()
-        val doujinshi = doujinshis.first()
+        val doujinshi = doujinshis.firstOrNull() ?: return null
         return Doujinshi(
             id = DoujinshiId(doujinshi.id),
             title = doujinshi.title,
@@ -197,7 +197,7 @@ class DoujinshiRepositoryImpl(
     }
 
     override suspend fun update(doujinshi: Doujinshi) {
-        val saved = get(doujinshi.id)
+        val saved = get(doujinshi.id) ?: return
         val addedAuthors = doujinshi.authors - saved.authors
         val removedAuthors = saved.authors - doujinshi.authors
         val addedTags = doujinshi.tags - saved.tags

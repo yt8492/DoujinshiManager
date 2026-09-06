@@ -41,7 +41,7 @@ class RegisterViewModel(
 
     fun onPickResult(result: DoujinshiBindingModel) {
         viewModelScope.launch {
-            val doujinshi = doujinshiRepository.get(result.id)
+            val doujinshi = doujinshiRepository.get(result.id) ?: return@launch
             _bindingModel.value = RegisterBindingModel(
                 title = doujinshi.title,
                 circle = doujinshi.circle,

@@ -32,6 +32,9 @@ class DetailViewModel(
     init {
         viewModelScope.launch {
             _doujinshi.value = doujinshiRepository.get(id)
+            if (_doujinshi.value == null) {
+                _destination.value = PopBackDestination
+            }
         }
     }
 

@@ -44,6 +44,10 @@ class EditViewModel(
     init {
         viewModelScope.launch {
             val doujinshi = doujinshiRepository.get(id)
+            if (doujinshi == null) {
+                _destination.value = PopBackDestination
+                return@launch
+            }
             _bindingModel.value = BindingModelConverter.convertToEditBindingModel(doujinshi)
         }
     }

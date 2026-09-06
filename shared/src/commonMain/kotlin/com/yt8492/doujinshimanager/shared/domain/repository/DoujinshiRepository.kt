@@ -11,7 +11,8 @@ interface DoujinshiRepository {
         page: Int = 0,
         size: Int = 30,
     ): DoujinshiSearchResult
-    suspend fun get(id: DoujinshiId): Doujinshi
+    /** Returns null when the requested doujinshi no longer exists. */
+    suspend fun get(id: DoujinshiId): Doujinshi?
     suspend fun save(doujinshi: Doujinshi)
     suspend fun update(doujinshi: Doujinshi)
     suspend fun delete(id: DoujinshiId)

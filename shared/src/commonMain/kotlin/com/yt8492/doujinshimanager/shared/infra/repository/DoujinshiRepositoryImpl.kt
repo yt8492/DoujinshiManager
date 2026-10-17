@@ -22,87 +22,52 @@ class DoujinshiRepositoryImpl(
     private val doujinshiQueries: DoujinshiQueries,
 ) : DoujinshiRepository {
     override suspend fun search(searchSpec: DoujinshiSearchSpec, page: Int, size: Int): DoujinshiSearchResult {
-        val result = doujinshiQueries.find(
-            keywordQuery = searchSpec.keyword?.let { "%$it%" },
-            circleId = searchSpec.circle?.value,
-            eventId = searchSpec.event?.value,
-            authorsIsEmpty = searchSpec.authors.isEmpty(),
-            authorIds = searchSpec.authors.map { it.value },
-            tagsIsEmpty = searchSpec.tags.isEmpty(),
-            tagIds = searchSpec.tags.map { it.value },
-            tagsCount = searchSpec.tags.size.toLong(),
-            startDate = searchSpec.pubTerm?.start?.toString(),
-            endDate = searchSpec.pubTerm?.end?.toString(),
-            limit = size.toLong(),
-            offset = (page * size).toLong()
-        )
-            .executeAsList()
-            .groupBy {
-                it.id
-            }
-            .map { entry ->
-                val doujinshis = entry.value
-                val doujinshi = doujinshis.first()
-                Doujinshi(
-                    id = DoujinshiId(entry.key),
-                    title = doujinshi.title,
-                    circle = if (doujinshi.id_ != null && doujinshi.name != null) {
-                        Circle(
-                            id = CircleId(doujinshi.id_),
-                            name = doujinshi.name,
-                        )
-                    } else {
-                        null
-                    },
-                    event = if (doujinshi.id__ != null && doujinshi.name_ != null) {
-                        Event(
-                            id = EventId(doujinshi.id__),
-                            name = doujinshi.name_,
-                            term = if (doujinshi.start_at != null && doujinshi.end_at != null) {
-                                Period(
-                                    start = LocalDate.parse(doujinshi.start_at),
-                                    end = LocalDate.parse(doujinshi.end_at)
-                                )
-                            } else {
-                                null
-                            },
-                        )
-                    } else {
-                        null
-                    },
-                    authors = doujinshis.mapNotNull {
-                        if (it.id____ != null && it.name__ != null) {
-                            Author(
-                                id = AuthorId(it.id____),
-                                name = it.name__,
+        return doujinshiQueries.transactionWithResult {
+            val rows = doujinshiQueries.find(
+                keywordQuery = searchSpec.keyword?.let { "%$it%" },
+                circleId = searchSpec.circle?.value,
+                eventId = searchSpec.event?.value,
+                authorsIsEmpty = searchSpec.authors.isEmpty(),
+                authorIds = searchSpec.authors.map { it.value },
+                tagsIsEmpty = searchSpec.tags.isEmpty(),
+                tagIds = searchSpec.tags.map { it.value },
+                tagsCount = searchSpec.tags.distinct().size.toLong(),
+                startDate = searchSpec.pubTerm?.start?.toString(),
+                endDate = searchSpec.pubTerm?.end?.toString(),
+                limit = size.toLong() + 1,
+                offset = page.toLong() * size,
+            ).executeAsList()
+            val visible = rows.take(size)
+            val chunks = visible.map { it.id }.chunked(900)
+            val authors = chunks.flatMap { doujinshiQueries.findAuthorsForBooks(it).executeAsList() }
+                .groupBy { it.doujinshi_id }
+            val tags = chunks.flatMap { doujinshiQueries.findTagsForBooks(it).executeAsList() }
+                .groupBy { it.doujinshi_id }
+            val images = chunks.flatMap { doujinshiQueries.findImagesForBooks(it).executeAsList() }
+                .groupBy { it.doujinshi_id }
+            DoujinshiSearchResult(
+                list = visible.map { row ->
+                    Doujinshi(
+                        id = DoujinshiId(row.id),
+                        title = row.title,
+                        circle = row.circleId?.let { Circle(CircleId(it), requireNotNull(row.circleName)) },
+                        event = row.eventId?.let {
+                            Event(EventId(it), requireNotNull(row.eventName),
+                                if (row.start_at != null && row.end_at != null) {
+                                    Period(LocalDate.parse(row.start_at), LocalDate.parse(row.end_at))
+                                } else null,
                             )
-                        } else {
-                            null
-                        }
-                    }.distinct(),
-                    tags = doujinshis.mapNotNull {
-                        if (it.id______ != null && it.name___ != null) {
-                            Tag(
-                                id = TagId(it.id______),
-                                name = it.name___,
-                            )
-                        } else {
-                            null
-                        }
-                    }.distinct(),
-                    pubDate = doujinshi.pub_date?.let {
-                        LocalDate.parse(it)
-                    },
-                    imagePaths = doujinshis.mapNotNull {
-                        it.image_path
-                    }.distinct(),
-                    createdAt = Instant.parse(doujinshi.created_at),
-                )
-            }
-        return DoujinshiSearchResult(
-            list = result,
-            hasNextPage = result.size == size,
-        )
+                        },
+                        authors = authors[row.id].orEmpty().map { Author(AuthorId(it.author_id), it.author_name) }.distinct(),
+                        tags = tags[row.id].orEmpty().map { Tag(TagId(it.tag_id), it.tag_name) }.distinct(),
+                        imagePaths = images[row.id].orEmpty().map { it.image_path }.distinct(),
+                        pubDate = row.pub_date?.let(LocalDate::parse),
+                        createdAt = Instant.parse(row.created_at),
+                    )
+                },
+                hasNextPage = rows.size > size,
+            )
+        }
     }
 
     override suspend fun get(id: DoujinshiId): Doujinshi? {
@@ -208,6 +173,8 @@ class DoujinshiRepositoryImpl(
             doujinshiQueries.updateDoujinshi(
                 id = doujinshi.id.value,
                 title = doujinshi.title,
+                circle_id = doujinshi.circle?.id?.value,
+                event_id = doujinshi.event?.id?.value,
                 pub_date = doujinshi.pubDate?.toString(),
             )
             removedAuthors.forEach {

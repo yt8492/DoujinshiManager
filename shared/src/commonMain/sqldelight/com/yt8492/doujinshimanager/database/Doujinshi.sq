@@ -35,27 +35,42 @@ CREATE TABLE doujinshis_images (
 CREATE INDEX doujinshi_title ON doujinshis(title);
 
 find:
-SELECT *
+SELECT doujinshis.*, circles.id AS circleId, circles.name AS circleName,
+       events.id AS eventId, events.name AS eventName, events.start_at, events.end_at
 FROM doujinshis
 LEFT OUTER JOIN circles ON doujinshis.circle_id = circles.id
 LEFT OUTER JOIN events ON doujinshis.event_id = events.id
-LEFT OUTER JOIN doujinshis_authors da ON doujinshis.id = da.doujinshi_id
-LEFT OUTER JOIN authors ON da.author_id = authors.id
-LEFT OUTER JOIN doujinshis_tags dt ON doujinshis.id = dt.doujinshi_id
-LEFT OUTER JOIN tags ON dt.tag_id = tags.id
-LEFT OUTER JOIN doujinshis_images di ON doujinshis.id = di.doujinshi_id
-WHERE (:keywordQuery ISNULL OR title LIKE :keywordQuery)
-AND (:circleId ISNULL OR circle_id = :circleId)
-AND (:eventId ISNULL OR event_id = :eventId)
-AND (:authorsIsEmpty OR authors.id IN :authorIds)
-AND (:tagsIsEmpty OR tags.id IN :tagIds)
-AND (:startDate ISNULL OR :startDate <= pub_date)
-AND (:endDate ISNULL OR pub_date <= :endDate)
-GROUP BY doujinshis.id
-HAVING :tagsIsEmpty OR COUNT(DISTINCT dt.tag_id) = :tagsCount
-ORDER BY doujinshis.created_at DESC
-LIMIT :limit
-OFFSET :offset;
+WHERE (:keywordQuery ISNULL OR doujinshis.title LIKE :keywordQuery)
+AND (:circleId ISNULL OR doujinshis.circle_id = :circleId)
+AND (:eventId ISNULL OR doujinshis.event_id = :eventId)
+AND (:authorsIsEmpty OR doujinshis.id IN (
+  SELECT doujinshi_id FROM doujinshis_authors WHERE author_id IN :authorIds
+))
+AND (:tagsIsEmpty OR doujinshis.id IN (
+  SELECT doujinshi_id FROM doujinshis_tags WHERE tag_id IN :tagIds
+  GROUP BY doujinshi_id HAVING COUNT(DISTINCT tag_id) = :tagsCount
+))
+AND (:startDate ISNULL OR :startDate <= doujinshis.pub_date)
+AND (:endDate ISNULL OR doujinshis.pub_date <= :endDate)
+ORDER BY doujinshis.created_at DESC, doujinshis.id DESC
+LIMIT :limit OFFSET :offset;
+
+findAuthorsForBooks:
+SELECT da.doujinshi_id, authors.id AS author_id, authors.name AS author_name
+FROM doujinshis_authors da JOIN authors ON da.author_id = authors.id
+WHERE da.doujinshi_id IN :bookIds
+ORDER BY da.id;
+
+findTagsForBooks:
+SELECT dt.doujinshi_id, tags.id AS tag_id, tags.name AS tag_name
+FROM doujinshis_tags dt JOIN tags ON dt.tag_id = tags.id
+WHERE dt.doujinshi_id IN :bookIds
+ORDER BY dt.id;
+
+findImagesForBooks:
+SELECT doujinshi_id, image_path FROM doujinshis_images
+WHERE doujinshi_id IN :bookIds
+ORDER BY id;
 
 findById:
 SELECT *
@@ -67,7 +82,8 @@ LEFT OUTER JOIN authors ON da.author_id = authors.id
 LEFT OUTER JOIN doujinshis_tags dt ON doujinshis.id = dt.doujinshi_id
 LEFT OUTER JOIN tags ON dt.tag_id = tags.id
 LEFT OUTER JOIN doujinshis_images di ON doujinshis.id = di.doujinshi_id
-WHERE doujinshis.id = ?;
+WHERE doujinshis.id = ?
+ORDER BY di.id ASC, da.id ASC, dt.id ASC;
 
 findDoujinshiImages:
 SELECT *
@@ -92,7 +108,7 @@ INSERT INTO doujinshis_images (doujinshi_id, image_path)
 VALUES (?, ?);
 
 updateDoujinshi:
-UPDATE doujinshis SET title = ?, pub_date = ?
+UPDATE doujinshis SET title = ?, circle_id = ?, event_id = ?, pub_date = ?
 WHERE id = ?;
 
 updateDoujinshiImage:

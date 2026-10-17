@@ -25,6 +25,9 @@ class EventRepositoryImpl(
             }
     }
 
+    override suspend fun getOrNull(id: EventId): Event? =
+        queries.find(id.value).executeAsOneOrNull()?.let(DBConverter::convertToModel)
+
     override suspend fun get(id: EventId): Event {
         return queries.find(id.value)
             .executeAsOne()

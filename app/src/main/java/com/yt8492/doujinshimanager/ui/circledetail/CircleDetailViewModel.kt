@@ -11,8 +11,10 @@ import com.yt8492.doujinshimanager.ui.bindingmodel.DoujinshiBindingModel
 import com.yt8492.doujinshimanager.ui.converter.BindingModelConverter
 import com.yt8492.doujinshimanager.ui.detail.DetailDestination
 import com.yt8492.doujinshimanager.ui.lib.Destination
+import com.yt8492.doujinshimanager.ui.lib.DoujinshiPager
 import com.yt8492.doujinshimanager.ui.lib.PopBackDestination
-import kotlinx.coroutines.async
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,6 +25,7 @@ class CircleDetailViewModel(
     private val id: CircleId,
     private val circleRepository: CircleRepository,
     private val doujinshiRepository: DoujinshiRepository,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(CircleDetailUiState.init(id))
     val uiState: StateFlow<CircleDetailUiState> = _uiState.asStateFlow()
@@ -30,28 +33,32 @@ class CircleDetailViewModel(
     private val _destination = MutableStateFlow<Destination?>(null)
     val destination: StateFlow<Destination?> = _destination.asStateFlow()
 
-    init {
-        viewModelScope.launch {
-            val circleDeferred = async {
-                circleRepository.get(id)
-            }
-            val spec = DoujinshiSearchSpec(
-                circle = id,
+    private val pager = DoujinshiPager(viewModelScope, doujinshiRepository, ioDispatcher) { state ->
+        _uiState.update {
+            it.copy(
+                bindingModel = it.bindingModel.copy(
+                    list = state.list.map(BindingModelConverter::convertToDoujinshiBindingModel),
+                    page = state.page,
+                    hasNextPage = state.hasNextPage,
+                ),
+                refreshing = state.refreshing,
+                loadingMore = state.loadingMore,
+                loadError = state.error,
             )
-            val result = doujinshiRepository.search(spec)
-            val circle = circleDeferred.await()
+        }
+    }
+
+    init { load() }
+
+    fun load() {
+        pager.refresh(DoujinshiSearchSpec(circle = id))
+        viewModelScope.launch {
+            val circle = circleRepository.get(id)
             _uiState.update {
-                it.copy(
-                    bindingModel = it.bindingModel.copy(
-                        circle = circle,
-                        inputCircleName = circle.name,
-                        list = result.list.map {
-                            BindingModelConverter.convertToDoujinshiBindingModel(it)
-                        },
-                        page = 0,
-                        hasNextPage = result.hasNextPage,
-                    )
-                )
+                it.copy(bindingModel = it.bindingModel.copy(
+                    circle = circle,
+                    inputCircleName = if (it.bindingModel.isEditMode) it.bindingModel.inputCircleName else circle.name,
+                ))
             }
         }
     }
@@ -90,6 +97,7 @@ class CircleDetailViewModel(
                     ),
                 )
             }
+            pager.refresh(DoujinshiSearchSpec(circle = id))
         }
     }
 
@@ -103,35 +111,9 @@ class CircleDetailViewModel(
         }
     }
 
-    fun loadMore() {
-        viewModelScope.launch {
-            val page = _uiState.value.bindingModel.page
-            _uiState.update {
-                it.copy(
-                    loadingMore = true,
-                )
-            }
-            val spec = DoujinshiSearchSpec(
-                circle = id,
-            )
-            val result = doujinshiRepository.search(
-                searchSpec = spec,
-                page = page + 1,
-            )
-            _uiState.update {
-                it.copy(
-                    bindingModel = it.bindingModel.copy(
-                        list = it.bindingModel.list + result.list.map {
-                            BindingModelConverter.convertToDoujinshiBindingModel(it)
-                        },
-                        page = it.bindingModel.page + 1,
-                        hasNextPage = result.hasNextPage,
-                    ),
-                    loadingMore = false,
-                )
-            }
-        }
-    }
+    fun loadMore() = pager.loadMore()
+
+    fun retry() = pager.retry()
 
     fun onClickItem(item: DoujinshiBindingModel) {
         _destination.value = DetailDestination(item.id.value)

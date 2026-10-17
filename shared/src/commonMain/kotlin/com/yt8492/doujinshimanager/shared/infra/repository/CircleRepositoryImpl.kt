@@ -25,6 +25,9 @@ class CircleRepositoryImpl(
             }
     }
 
+    override suspend fun getOrNull(id: CircleId): Circle? =
+        queries.find(id.value).executeAsOneOrNull()?.let(DBConverter::convertToModel)
+
     override suspend fun get(id: CircleId): Circle {
         return queries.find(id.value)
             .executeAsOne()

@@ -18,6 +18,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.currentCoroutineContext
+import io.github.aakira.napier.Napier
 
 class DetailViewModel(
     private val id: DoujinshiId,
@@ -29,11 +34,22 @@ class DetailViewModel(
     private val _destination = MutableStateFlow<Destination?>(null)
     val destination: StateFlow<Destination?> = _destination.asStateFlow()
 
-    init {
-        viewModelScope.launch {
-            _doujinshi.value = doujinshiRepository.get(id)
-            if (_doujinshi.value == null) {
-                _destination.value = PopBackDestination
+    private var loadJob: Job? = null
+
+    init { load() }
+
+    fun load() {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
+            try {
+                val result = doujinshiRepository.get(id)
+                currentCoroutineContext().ensureActive()
+                _doujinshi.value = result
+                if (result == null) _destination.value = PopBackDestination
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Napier.e("Failed to refresh doujinshi", e)
             }
         }
     }

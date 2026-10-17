@@ -28,6 +28,10 @@ fun TopPage(
     TopTemplate(
         bindingModel = uiState.bindingModel,
         loadMore = viewModel::loadMore,
+        refreshing = uiState.refreshing,
+        loadingMore = uiState.loadingMore,
+        loadError = uiState.loadError,
+        onRetry = viewModel::retry,
         onClickItem = viewModel::onClickItem,
         onClickSearch = viewModel::onClickSearch,
         onClickAddDoujinshi = viewModel::onClickAddDoujinshi,

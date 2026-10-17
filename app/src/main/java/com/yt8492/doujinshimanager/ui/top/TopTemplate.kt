@@ -17,15 +17,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.yt8492.doujinshimanager.ui.bindingmodel.DoujinshiBindingModel
 import com.yt8492.doujinshimanager.ui.component.DoujinshiListItem
+import com.yt8492.doujinshimanager.ui.component.PaginationEffect
+import com.yt8492.doujinshimanager.ui.component.PaginationStatus
+import com.yt8492.doujinshimanager.ui.lib.DoujinshiLoadError
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,6 +35,10 @@ fun TopTemplate(
     onClickSearch: () -> Unit,
     onClickAddDoujinshi: () -> Unit,
     onClickSetting: () -> Unit,
+    refreshing: Boolean = false,
+    loadingMore: Boolean = false,
+    loadError: DoujinshiLoadError? = null,
+    onRetry: () -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -73,14 +76,10 @@ fun TopTemplate(
         }
     ) { paddingValues ->
         val listState = rememberLazyListState()
-        LaunchedEffect(listState) {
-            snapshotFlow { listState.layoutInfo to listState.firstVisibleItemIndex }
-                .collect { (layoutInfo, firstVisibleItemIndex) ->
-                    if (bindingModel.hasNextPage && layoutInfo.totalItemsCount == firstVisibleItemIndex + layoutInfo.visibleItemsInfo.size) {
-                        loadMore()
-                    }
-                }
-        }
+        PaginationEffect(
+            listState, bindingModel.list.size, bindingModel.hasNextPage,
+            !refreshing && !loadingMore && loadError == null, loadMore,
+        )
         LazyColumn(
             state = listState,
             modifier = Modifier
@@ -106,6 +105,9 @@ fun TopTemplate(
                     item = it,
                     onClick = onClickItem,
                 )
+            }
+            item(key = "pagination-status") {
+                PaginationStatus(refreshing || loadingMore, loadError, onRetry)
             }
         }
     }

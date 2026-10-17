@@ -30,8 +30,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
@@ -46,6 +44,8 @@ import com.yt8492.doujinshimanager.ui.bindingmodel.DoujinshiBindingModel
 import com.yt8492.doujinshimanager.ui.component.DeletableTextBox
 import com.yt8492.doujinshimanager.ui.component.DoujinshiListItem
 import com.yt8492.doujinshimanager.ui.component.InputSection
+import com.yt8492.doujinshimanager.ui.component.PaginationEffect
+import com.yt8492.doujinshimanager.ui.component.PaginationStatus
 import com.yt8492.doujinshimanager.ui.theme.DoujinshiManagerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,6 +70,7 @@ fun SearchTemplate(
     loadMore: () -> Unit,
     onDismiss: () -> Unit,
     onBackPress: () -> Unit,
+    onRetry: () -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -138,14 +139,10 @@ fun SearchTemplate(
                 )
             }
             val listState = rememberLazyListState()
-            LaunchedEffect(listState) {
-                snapshotFlow { listState.layoutInfo to listState.firstVisibleItemIndex }
-                    .collect { (layoutInfo, firstVisibleItemIndex) ->
-                        if (bindingModel.hasNextPage && layoutInfo.totalItemsCount == firstVisibleItemIndex + layoutInfo.visibleItemsInfo.size) {
-                            loadMore()
-                        }
-                    }
-            }
+            PaginationEffect(
+                listState, bindingModel.searchResult.size, bindingModel.hasNextPage,
+                !bindingModel.refreshing && !bindingModel.loadingMore && bindingModel.loadError == null, loadMore,
+            )
             LazyColumn(
                 state = listState,
                 modifier = Modifier
@@ -171,6 +168,9 @@ fun SearchTemplate(
                         item = it,
                         onClick = onClickItem,
                     )
+                }
+                item(key = "pagination-status") {
+                    PaginationStatus(bindingModel.refreshing || bindingModel.loadingMore, bindingModel.loadError, onRetry)
                 }
             }
         }

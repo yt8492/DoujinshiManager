@@ -2,10 +2,13 @@ package com.yt8492.doujinshimanager.ui.circledetail
 
 import com.yt8492.doujinshimanager.shared.domain.model.Circle
 import com.yt8492.doujinshimanager.shared.domain.model.CircleId
+import com.yt8492.doujinshimanager.ui.lib.DoujinshiLoadError
 
 data class CircleDetailUiState(
     val bindingModel: CircleDetailBindingModel,
     val loadingMore: Boolean,
+    val refreshing: Boolean = false,
+    val loadError: DoujinshiLoadError? = null,
 ) {
     companion object {
         fun init(

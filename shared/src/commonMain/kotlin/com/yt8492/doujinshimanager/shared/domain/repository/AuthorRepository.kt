@@ -7,6 +7,7 @@ interface AuthorRepository {
     suspend fun fuzzyFind(authorName: String): List<Author>
     suspend fun findByName(authorName: String): Author?
     suspend fun get(id: AuthorId): Author
+    suspend fun getOrNull(id: AuthorId): Author?
     suspend fun save(author: Author)
     suspend fun getAll(): List<Author>
     suspend fun deleteAll()

@@ -2,9 +2,12 @@ package com.yt8492.doujinshimanager.ui.search
 
 import com.yt8492.doujinshimanager.shared.domain.model.Author
 import com.yt8492.doujinshimanager.shared.domain.model.Circle
+import com.yt8492.doujinshimanager.shared.domain.model.DoujinshiSortKey
 import com.yt8492.doujinshimanager.shared.domain.model.Event
+import com.yt8492.doujinshimanager.shared.domain.model.Period
 import com.yt8492.doujinshimanager.shared.domain.model.Tag
 import com.yt8492.doujinshimanager.ui.bindingmodel.DoujinshiBindingModel
+import com.yt8492.doujinshimanager.ui.lib.DoujinshiLoadError
 
 data class SearchBindingModel(
     val title: String,
@@ -24,6 +27,11 @@ data class SearchBindingModel(
     val searchResult: List<DoujinshiBindingModel>,
     val page: Int,
     val hasNextPage: Boolean,
+    val pubTerm: Period? = null,
+    val sortKey: DoujinshiSortKey = DoujinshiSortKey.EVENT_DESC,
+    val refreshing: Boolean = false,
+    val loadingMore: Boolean = false,
+    val loadError: DoujinshiLoadError? = null,
 ) {
     companion object {
         fun empty(): SearchBindingModel {

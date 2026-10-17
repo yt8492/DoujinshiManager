@@ -25,6 +25,9 @@ class TagRepositoryImpl(
             }
     }
 
+    override suspend fun getOrNull(id: TagId): Tag? =
+        queries.find(id.value).executeAsOneOrNull()?.let(DBConverter::convertToModel)
+
     override suspend fun get(id: TagId): Tag {
         return queries.find(id.value)
             .executeAsOne()

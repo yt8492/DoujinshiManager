@@ -3,10 +3,14 @@ package com.yt8492.doujinshimanager.ui.search
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yt8492.doujinshimanager.shared.domain.model.Author
+import com.yt8492.doujinshimanager.shared.domain.model.AuthorId
 import com.yt8492.doujinshimanager.shared.domain.model.Circle
+import com.yt8492.doujinshimanager.shared.domain.model.CircleId
 import com.yt8492.doujinshimanager.shared.domain.model.DoujinshiSearchSpec
 import com.yt8492.doujinshimanager.shared.domain.model.Event
+import com.yt8492.doujinshimanager.shared.domain.model.EventId
 import com.yt8492.doujinshimanager.shared.domain.model.Tag
+import com.yt8492.doujinshimanager.shared.domain.model.TagId
 import com.yt8492.doujinshimanager.shared.domain.repository.AuthorRepository
 import com.yt8492.doujinshimanager.shared.domain.repository.CircleRepository
 import com.yt8492.doujinshimanager.shared.domain.repository.DoujinshiRepository
@@ -17,14 +21,22 @@ import com.yt8492.doujinshimanager.ui.converter.BindingModelConverter
 import com.yt8492.doujinshimanager.ui.converter.DoujinshiSearchSpecConverter
 import com.yt8492.doujinshimanager.ui.detail.DetailDestination
 import com.yt8492.doujinshimanager.ui.lib.Destination
+import com.yt8492.doujinshimanager.ui.lib.DoujinshiLoadError
+import com.yt8492.doujinshimanager.ui.lib.DoujinshiPager
 import com.yt8492.doujinshimanager.ui.lib.PopBackDestination
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SearchViewModel(
     initialSearchSpec: DoujinshiSearchSpec,
@@ -33,8 +45,17 @@ class SearchViewModel(
     private val authorRepository: AuthorRepository,
     private val tagRepository: TagRepository,
     private val eventRepository: EventRepository,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
-    private val _bindingModel = MutableStateFlow(SearchBindingModel.empty())
+    private val _bindingModel = MutableStateFlow(SearchBindingModel.empty().copy(
+        title = initialSearchSpec.keyword.orEmpty(),
+        circle = initialSearchSpec.circle?.let { Circle(it, "") },
+        authors = initialSearchSpec.authors.map { Author(it, "") },
+        tags = initialSearchSpec.tags.map { Tag(it, "") },
+        event = initialSearchSpec.event?.let { Event(it, "", null) },
+        pubTerm = initialSearchSpec.pubTerm,
+        sortKey = initialSearchSpec.sortKey,
+    ))
     val bindingModel: StateFlow<SearchBindingModel> = _bindingModel.asStateFlow()
 
     private val _destination = MutableStateFlow<Destination?>(null)
@@ -42,20 +63,90 @@ class SearchViewModel(
 
     private var suggestJob: Job? = null
 
-    init {
-        viewModelScope.launch {
-            val searchResult = doujinshiRepository.search(
-                searchSpec = initialSearchSpec,
-                page = 0,
+    private var metadataJob: Job? = null
+    private var metadataGeneration = 0
+    private var requestedMetadata: FilterSelection? = null
+    private var metadataFailed = false
+    private var pageError: DoujinshiLoadError? = null
+
+    private val pager = DoujinshiPager(viewModelScope, doujinshiRepository, ioDispatcher) { state ->
+        pageError = state.error
+        _bindingModel.update {
+            it.copy(
+                searchResult = state.list.map(BindingModelConverter::convertToDoujinshiBindingModel),
+                page = state.page,
+                hasNextPage = state.hasNextPage,
+                refreshing = state.refreshing,
+                loadingMore = state.loadingMore,
+                loadError = currentLoadError(),
             )
-            _bindingModel.update {
-                it.copy(
-                    searchResult = searchResult.list.map {
-                        BindingModelConverter.convertToDoujinshiBindingModel(it)
-                    },
-                    page = 0,
-                    hasNextPage = searchResult.hasNextPage,
-                )
+        }
+    }
+
+    init {
+        pager.refresh(initialSearchSpec)
+        loadFilterMetadata()
+    }
+
+    fun refresh() {
+        loadFilterMetadata(force = true)
+        pager.refresh()
+    }
+
+    fun retry() {
+        if (metadataFailed) loadFilterMetadata(force = true)
+        pager.retry()
+    }
+
+    private fun currentLoadError() = pageError ?: if (metadataFailed) {
+        DoujinshiLoadError.REFRESH
+    } else null
+
+    private data class FilterSelection(
+        val circle: CircleId?, val authors: List<AuthorId>, val tags: List<TagId>, val event: EventId?,
+    )
+
+    private fun metadataSelection(model: SearchBindingModel) = FilterSelection(
+        model.circle?.id, model.authors.map { it.id }, model.tags.map { it.id }, model.event?.id,
+    )
+
+    private fun loadFilterMetadata(force: Boolean = false) {
+        val snapshot = _bindingModel.value
+        val selection = metadataSelection(snapshot)
+        if (!force && requestedMetadata == selection && !metadataFailed) return
+        val token = ++metadataGeneration
+        metadataJob?.cancel()
+        requestedMetadata = selection
+        metadataFailed = false
+        _bindingModel.update { it.copy(loadError = currentLoadError()) }
+        metadataJob = viewModelScope.launch {
+            try {
+                val resolved = withContext(ioDispatcher) {
+                    snapshot.copy(
+                        circle = snapshot.circle?.let { circleRepository.getOrNull(it.id) ?: it.copy(name = "不明なサークル") },
+                        authors = snapshot.authors.map { authorRepository.getOrNull(it.id) ?: it.copy(name = "不明な著者") },
+                        tags = snapshot.tags.map { tagRepository.getOrNull(it.id) ?: it.copy(name = "不明なタグ") },
+                        event = snapshot.event?.let { eventRepository.getOrNull(it.id) ?: it.copy(name = "不明なイベント") },
+                    )
+                }
+                currentCoroutineContext().ensureActive()
+                if (token != metadataGeneration) return@launch
+                _bindingModel.update { current ->
+                    current.copy(
+                        circle = resolved.circle?.takeIf { it.id == current.circle?.id } ?: current.circle,
+                        authors = current.authors.map { item -> resolved.authors.find { it.id == item.id } ?: item },
+                        tags = current.tags.map { item -> resolved.tags.find { it.id == item.id } ?: item },
+                        event = resolved.event?.takeIf { it.id == current.event?.id } ?: current.event,
+                        loadError = currentLoadError(),
+                    )
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                if (token == metadataGeneration && selection == metadataSelection(_bindingModel.value)) {
+                    metadataFailed = true
+                    _bindingModel.update { it.copy(loadError = currentLoadError()) }
+                }
             }
         }
     }
@@ -244,22 +335,7 @@ class SearchViewModel(
     }
 
     fun loadMore() {
-        viewModelScope.launch {
-            val current = _bindingModel.value
-            val result = doujinshiRepository.search(
-                searchSpec = DoujinshiSearchSpecConverter.convertToSearchSpec(current),
-                page = current.page + 1,
-            )
-            _bindingModel.update {
-                it.copy(
-                    searchResult = it.searchResult + result.list.map {
-                        BindingModelConverter.convertToDoujinshiBindingModel(it)
-                    },
-                    page = current.page + 1,
-                    hasNextPage = result.hasNextPage,
-                )
-            }
-        }
+        if (!metadataFailed) pager.loadMore()
     }
 
     fun onDismiss() {
@@ -283,20 +359,8 @@ class SearchViewModel(
         _destination.value = null
     }
 
-    private suspend fun search(bindingModel: SearchBindingModel) {
-        val searchSpec = DoujinshiSearchSpecConverter.convertToSearchSpec(bindingModel)
-        val searchResult = doujinshiRepository.search(
-            searchSpec = searchSpec,
-            page = 0,
-        )
-        _bindingModel.update {
-            it.copy(
-                searchResult = searchResult.list.map {
-                    BindingModelConverter.convertToDoujinshiBindingModel(it)
-                },
-                page = 0,
-                hasNextPage = searchResult.hasNextPage,
-            )
-        }
+    private fun search(bindingModel: SearchBindingModel) {
+        loadFilterMetadata()
+        pager.refresh(DoujinshiSearchSpecConverter.convertToSearchSpec(bindingModel), reset = true)
     }
 }

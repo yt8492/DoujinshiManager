@@ -324,11 +324,9 @@ class EditViewModel(
         suggestJob = null
         val current = _bindingModel.value ?: return
         viewModelScope.launch {
-            val circle = current.circle
-                ?: circleRepository.findByName(current.inputCircle)
-                ?: Circle.create(current.inputCircle).also {
-                    circleRepository.save(it)
-                }
+            val circle = current.circle ?: current.inputCircle.takeIf { it.isNotBlank() }?.let { name ->
+                circleRepository.findByName(name) ?: Circle.create(name).also { circleRepository.save(it) }
+            }
             val doujinshi = Doujinshi(
                 id = current.id,
                 title = current.title,

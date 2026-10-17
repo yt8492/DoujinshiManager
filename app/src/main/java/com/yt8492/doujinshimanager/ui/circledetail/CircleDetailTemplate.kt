@@ -44,6 +44,13 @@ fun CircleDetailTemplate(
                         OutlinedTextField(
                             value = bindingModel.inputCircleName,
                             onValueChange = onInputName,
+                            enabled = uiState.canSave,
+                            isError = uiState.saveError,
+                            supportingText = if (uiState.saveError) {
+                                { Text("サークル名の保存に失敗しました") }
+                            } else {
+                                null
+                            },
                         )
                     } else {
                         Text(text = bindingModel.circle.name)
@@ -53,6 +60,7 @@ fun CircleDetailTemplate(
                     if (bindingModel.isEditMode) {
                         IconButton(
                             onClick = onClickSave,
+                            enabled = uiState.canSave,
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Save,
@@ -62,6 +70,7 @@ fun CircleDetailTemplate(
                     } else {
                         IconButton(
                             onClick = onClickEdit,
+                            enabled = uiState.canEdit,
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Edit,
@@ -86,7 +95,7 @@ fun CircleDetailTemplate(
         val listState = rememberLazyListState()
         PaginationEffect(
             listState, bindingModel.list.size, bindingModel.hasNextPage,
-            !uiState.refreshing && !uiState.loadingMore && uiState.loadError == null, loadMore,
+            uiState.canLoadMore, loadMore,
         )
         LazyColumn(
             state = listState,

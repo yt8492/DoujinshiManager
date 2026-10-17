@@ -39,6 +39,14 @@ internal class DoujinshiPager(
     private var generation = 0
     private var refreshLastPage = 0
 
+    /** Invalidates in-flight reads while preserving the successfully loaded range. */
+    fun cancel() {
+        generation++
+        request?.cancel()
+        request = null
+        publish(state.copy(refreshing = false, loadingMore = false, error = null))
+    }
+
     fun refresh(spec: DoujinshiSearchSpec = searchSpec, reset: Boolean = false) {
         generation++
         val token = generation

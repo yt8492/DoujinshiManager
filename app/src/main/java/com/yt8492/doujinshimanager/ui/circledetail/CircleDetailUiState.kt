@@ -9,7 +9,19 @@ data class CircleDetailUiState(
     val loadingMore: Boolean,
     val refreshing: Boolean = false,
     val loadError: DoujinshiLoadError? = null,
+    val hasLoaded: Boolean = false,
+    val saving: Boolean = false,
+    val saveError: Boolean = false,
 ) {
+    val canEdit: Boolean
+        get() = hasLoaded && !saving
+
+    val canSave: Boolean
+        get() = canEdit && bindingModel.isEditMode
+
+    val canLoadMore: Boolean
+        get() = bindingModel.hasNextPage && !refreshing && !loadingMore && !saving && loadError == null
+
     companion object {
         fun init(
             id: CircleId,

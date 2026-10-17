@@ -44,18 +44,24 @@ LEFT OUTER JOIN authors ON da.author_id = authors.id
 LEFT OUTER JOIN doujinshis_tags dt ON doujinshis.id = dt.doujinshi_id
 LEFT OUTER JOIN tags ON dt.tag_id = tags.id
 LEFT OUTER JOIN doujinshis_images di ON doujinshis.id = di.doujinshi_id
-WHERE (:keywordQuery ISNULL OR title LIKE :keywordQuery)
-AND (:circleId ISNULL OR circle_id = :circleId)
-AND (:eventId ISNULL OR event_id = :eventId)
-AND (:authorsIsEmpty OR authors.id IN :authorIds)
-AND (:tagsIsEmpty OR tags.id IN :tagIds)
-AND (:startDate ISNULL OR :startDate <= pub_date)
-AND (:endDate ISNULL OR pub_date <= :endDate)
-GROUP BY doujinshis.id
-HAVING :tagsIsEmpty OR COUNT(DISTINCT dt.tag_id) = :tagsCount
-ORDER BY doujinshis.created_at DESC
-LIMIT :limit
-OFFSET :offset;
+WHERE doujinshis.id IN (
+  SELECT matched.id
+  FROM doujinshis matched
+  LEFT OUTER JOIN doujinshis_authors matched_authors ON matched.id = matched_authors.doujinshi_id
+  LEFT OUTER JOIN doujinshis_tags matched_tags ON matched.id = matched_tags.doujinshi_id
+  WHERE (:keywordQuery ISNULL OR matched.title LIKE :keywordQuery)
+  AND (:circleId ISNULL OR matched.circle_id = :circleId)
+  AND (:eventId ISNULL OR matched.event_id = :eventId)
+  AND (:authorsIsEmpty OR matched_authors.author_id IN :authorIds)
+  AND (:tagsIsEmpty OR matched_tags.tag_id IN :tagIds)
+  AND (:startDate ISNULL OR :startDate <= matched.pub_date)
+  AND (:endDate ISNULL OR matched.pub_date <= :endDate)
+  GROUP BY matched.id
+  HAVING :tagsIsEmpty OR COUNT(DISTINCT matched_tags.tag_id) = :tagsCount
+  ORDER BY matched.created_at DESC, matched.id DESC
+  LIMIT :limit OFFSET :offset
+)
+ORDER BY doujinshis.created_at DESC, doujinshis.id DESC, di.id ASC, da.id ASC, dt.id ASC;
 
 findById:
 SELECT *
@@ -67,7 +73,8 @@ LEFT OUTER JOIN authors ON da.author_id = authors.id
 LEFT OUTER JOIN doujinshis_tags dt ON doujinshis.id = dt.doujinshi_id
 LEFT OUTER JOIN tags ON dt.tag_id = tags.id
 LEFT OUTER JOIN doujinshis_images di ON doujinshis.id = di.doujinshi_id
-WHERE doujinshis.id = ?;
+WHERE doujinshis.id = ?
+ORDER BY di.id ASC, da.id ASC, dt.id ASC;
 
 findDoujinshiImages:
 SELECT *
@@ -92,7 +99,7 @@ INSERT INTO doujinshis_images (doujinshi_id, image_path)
 VALUES (?, ?);
 
 updateDoujinshi:
-UPDATE doujinshis SET title = ?, pub_date = ?
+UPDATE doujinshis SET title = ?, circle_id = ?, event_id = ?, pub_date = ?
 WHERE id = ?;
 
 updateDoujinshiImage:

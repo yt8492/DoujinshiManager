@@ -13,6 +13,8 @@ object DoujinshiSearchSpecConverter {
             event = bindingModel.event?.id,
             authors = bindingModel.authors.map { it.id },
             tags = bindingModel.tags.map { it.id },
+            pubTerm = bindingModel.pubTerm,
+            sortKey = bindingModel.sortKey,
         )
     }
 }

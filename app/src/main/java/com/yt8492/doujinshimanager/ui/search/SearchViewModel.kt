@@ -17,6 +17,7 @@ import com.yt8492.doujinshimanager.ui.converter.BindingModelConverter
 import com.yt8492.doujinshimanager.ui.converter.DoujinshiSearchSpecConverter
 import com.yt8492.doujinshimanager.ui.detail.DetailDestination
 import com.yt8492.doujinshimanager.ui.lib.Destination
+import com.yt8492.doujinshimanager.ui.lib.DoujinshiPager
 import com.yt8492.doujinshimanager.ui.lib.PopBackDestination
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,7 +35,15 @@ class SearchViewModel(
     private val tagRepository: TagRepository,
     private val eventRepository: EventRepository,
 ) : ViewModel() {
-    private val _bindingModel = MutableStateFlow(SearchBindingModel.empty())
+    private val _bindingModel = MutableStateFlow(SearchBindingModel.empty().copy(
+        title = initialSearchSpec.keyword.orEmpty(),
+        circle = initialSearchSpec.circle?.let { Circle(it, "") },
+        authors = initialSearchSpec.authors.map { com.yt8492.doujinshimanager.shared.domain.model.Author(it, "") },
+        tags = initialSearchSpec.tags.map { com.yt8492.doujinshimanager.shared.domain.model.Tag(it, "") },
+        event = initialSearchSpec.event?.let { Event(it, "", null) },
+        pubTerm = initialSearchSpec.pubTerm,
+        sortKey = initialSearchSpec.sortKey,
+    ))
     val bindingModel: StateFlow<SearchBindingModel> = _bindingModel.asStateFlow()
 
     private val _destination = MutableStateFlow<Destination?>(null)
@@ -42,23 +51,40 @@ class SearchViewModel(
 
     private var suggestJob: Job? = null
 
-    init {
-        viewModelScope.launch {
-            val searchResult = doujinshiRepository.search(
-                searchSpec = initialSearchSpec,
-                page = 0,
+    private val pager = DoujinshiPager(viewModelScope, doujinshiRepository) { state ->
+        _bindingModel.update {
+            it.copy(
+                searchResult = state.list.map(BindingModelConverter::convertToDoujinshiBindingModel),
+                page = state.page,
+                hasNextPage = state.hasNextPage,
+                refreshing = state.refreshing,
+                loadingMore = state.loadingMore,
+                loadError = state.error,
             )
-            _bindingModel.update {
-                it.copy(
-                    searchResult = searchResult.list.map {
-                        BindingModelConverter.convertToDoujinshiBindingModel(it)
-                    },
-                    page = 0,
-                    hasNextPage = searchResult.hasNextPage,
+        }
+    }
+
+    init {
+        pager.refresh(initialSearchSpec)
+        viewModelScope.launch {
+            val circle = initialSearchSpec.circle?.let { circleRepository.get(it) }
+            val authors = initialSearchSpec.authors.map { authorRepository.get(it) }
+            val tags = initialSearchSpec.tags.map { tagRepository.get(it) }
+            val event = initialSearchSpec.event?.let { eventRepository.get(it) }
+            _bindingModel.update { current ->
+                current.copy(
+                    circle = circle?.takeIf { it.id == current.circle?.id } ?: current.circle,
+                    authors = current.authors.map { item -> authors.find { it.id == item.id } ?: item },
+                    tags = current.tags.map { item -> tags.find { it.id == item.id } ?: item },
+                    event = event?.takeIf { it.id == current.event?.id } ?: current.event,
                 )
             }
         }
     }
+
+    fun refresh() = pager.refresh()
+
+    fun retry() = pager.retry()
 
     fun onInputTitle(title: String) {
         viewModelScope.launch {
@@ -243,24 +269,7 @@ class SearchViewModel(
         _destination.value = DetailDestination(item.id.value)
     }
 
-    fun loadMore() {
-        viewModelScope.launch {
-            val current = _bindingModel.value
-            val result = doujinshiRepository.search(
-                searchSpec = DoujinshiSearchSpecConverter.convertToSearchSpec(current),
-                page = current.page + 1,
-            )
-            _bindingModel.update {
-                it.copy(
-                    searchResult = it.searchResult + result.list.map {
-                        BindingModelConverter.convertToDoujinshiBindingModel(it)
-                    },
-                    page = current.page + 1,
-                    hasNextPage = result.hasNextPage,
-                )
-            }
-        }
-    }
+    fun loadMore() = pager.loadMore()
 
     fun onDismiss() {
         suggestJob?.cancel()
@@ -283,20 +292,7 @@ class SearchViewModel(
         _destination.value = null
     }
 
-    private suspend fun search(bindingModel: SearchBindingModel) {
-        val searchSpec = DoujinshiSearchSpecConverter.convertToSearchSpec(bindingModel)
-        val searchResult = doujinshiRepository.search(
-            searchSpec = searchSpec,
-            page = 0,
-        )
-        _bindingModel.update {
-            it.copy(
-                searchResult = searchResult.list.map {
-                    BindingModelConverter.convertToDoujinshiBindingModel(it)
-                },
-                page = 0,
-                hasNextPage = searchResult.hasNextPage,
-            )
-        }
+    private fun search(bindingModel: SearchBindingModel) {
+        pager.refresh(DoujinshiSearchSpecConverter.convertToSearchSpec(bindingModel), reset = true)
     }
 }

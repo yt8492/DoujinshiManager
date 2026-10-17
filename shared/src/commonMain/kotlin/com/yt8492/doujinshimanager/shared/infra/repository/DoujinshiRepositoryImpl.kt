@@ -33,7 +33,7 @@ class DoujinshiRepositoryImpl(
             tagsCount = searchSpec.tags.size.toLong(),
             startDate = searchSpec.pubTerm?.start?.toString(),
             endDate = searchSpec.pubTerm?.end?.toString(),
-            limit = size.toLong(),
+            limit = size.toLong() + 1,
             offset = (page * size).toLong()
         )
             .executeAsList()
@@ -100,8 +100,8 @@ class DoujinshiRepositoryImpl(
                 )
             }
         return DoujinshiSearchResult(
-            list = result,
-            hasNextPage = result.size == size,
+            list = result.take(size),
+            hasNextPage = result.size > size,
         )
     }
 
@@ -208,6 +208,8 @@ class DoujinshiRepositoryImpl(
             doujinshiQueries.updateDoujinshi(
                 id = doujinshi.id.value,
                 title = doujinshi.title,
+                circle_id = doujinshi.circle?.id?.value,
+                event_id = doujinshi.event?.id?.value,
                 pub_date = doujinshi.pubDate?.toString(),
             )
             removedAuthors.forEach {

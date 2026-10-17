@@ -66,7 +66,7 @@ class PaginationAndEditTest {
     }
 
     private fun search(spec: DoujinshiSearchSpec = DoujinshiSearchSpec(), repo: DoujinshiRepository = repository) =
-        SearchViewModel(spec, repo, circles, authors, tags, events)
+        SearchViewModel(spec, repo, circles, authors, tags, events, Dispatchers.Main)
 
     private fun edit(id: DoujinshiId) = EditViewModel(id, circles, authors, tags, events, repository)
 
@@ -138,7 +138,7 @@ class PaginationAndEditTest {
     fun topReachesTheOldestOf101BooksAndIgnoresDuplicateAndTerminalRequests() = runTest {
         seed(101)
         val controlled = ControlledRepository(repository)
-        val vm = TopViewModel(controlled)
+        val vm = TopViewModel(controlled, Dispatchers.Main)
         vm.load(); repeat(10) { vm.loadMore() }; advanceUntilIdle()
         assertEquals(30, vm.uiState.value.bindingModel.list.size)
         repeat(3) { repeat(10) { vm.loadMore() }; advanceUntilIdle() }
@@ -151,7 +151,7 @@ class PaginationAndEditTest {
     @Test
     fun topRefreshKeepsThreeLoadedPagesAndUpdatesAnEditedBookBeyondTheFirstPage() = runTest {
         seed(101)
-        val vm = TopViewModel(repository); vm.load(); advanceUntilIdle()
+        val vm = TopViewModel(repository, Dispatchers.Main); vm.load(); advanceUntilIdle()
         repeat(2) { vm.loadMore(); advanceUntilIdle() }
         val before = vm.uiState.value.bindingModel
         val editedId = before.list[55].id
@@ -197,7 +197,7 @@ class PaginationAndEditTest {
     fun circleRefreshRemovesMovedBookAndRefillsLoadedRange() = runTest {
         circles.save(circleA); circles.save(circleB)
         for (i in 0..100) repository.save(book(i).copy(circle = circleA))
-        val vm = CircleDetailViewModel(circleA.id, circles, repository); advanceUntilIdle()
+        val vm = CircleDetailViewModel(circleA.id, circles, repository, Dispatchers.Main); advanceUntilIdle()
         vm.loadMore(); advanceUntilIdle()
         val removed = vm.uiState.value.bindingModel.list[45].id
         repository.update(requireNotNull(repository.get(removed)).copy(circle = circleB))
@@ -214,7 +214,7 @@ class PaginationAndEditTest {
     fun circleRenameRemainsVisibleWhenLoadingAnotherPage() = runTest {
         circles.save(circleA)
         for (i in 0..60) repository.save(book(i).copy(circle = circleA))
-        val vm = CircleDetailViewModel(circleA.id, circles, repository); advanceUntilIdle()
+        val vm = CircleDetailViewModel(circleA.id, circles, repository, Dispatchers.Main); advanceUntilIdle()
         vm.onClickEdit(); vm.onInputName("Renamed circle"); vm.onClickSave(); advanceUntilIdle()
         vm.loadMore(); advanceUntilIdle()
         assertEquals(60, vm.uiState.value.bindingModel.list.size)
@@ -238,7 +238,7 @@ class PaginationAndEditTest {
     fun failedAppendCanBeRetriedWithoutAdvancingOrDuplicatingPages() = runTest {
         seed(61)
         val controlled = ControlledRepository(repository)
-        val vm = TopViewModel(controlled); vm.load(); advanceUntilIdle()
+        val vm = TopViewModel(controlled, Dispatchers.Main); vm.load(); advanceUntilIdle()
         controlled.fail = true
         vm.loadMore(); advanceUntilIdle()
         assertEquals(DoujinshiLoadError.LOAD_MORE, vm.uiState.value.loadError)
@@ -255,7 +255,7 @@ class PaginationAndEditTest {
     fun failedRefreshRetainsLoadedRowsAndRetriesTheSameRange() = runTest {
         seed(101)
         val controlled = ControlledRepository(repository)
-        val vm = TopViewModel(controlled); vm.load(); advanceUntilIdle(); vm.loadMore(); advanceUntilIdle()
+        val vm = TopViewModel(controlled, Dispatchers.Main); vm.load(); advanceUntilIdle(); vm.loadMore(); advanceUntilIdle()
         val before = vm.uiState.value.bindingModel
         controlled.fail = true; vm.load(); advanceUntilIdle()
         assertEquals(before, vm.uiState.value.bindingModel)
@@ -270,7 +270,7 @@ class PaginationAndEditTest {
     fun refreshSupersedesAnInFlightAppendEvenIfItIgnoresCancellation() = runTest {
         seed(101)
         val controlled = ControlledRepository(repository)
-        val vm = TopViewModel(controlled); vm.load(); advanceUntilIdle()
+        val vm = TopViewModel(controlled, Dispatchers.Main); vm.load(); advanceUntilIdle()
         val gate = CompletableDeferred<Unit>(); controlled.gate = gate
         vm.loadMore(); runCurrent()
         assertTrue(vm.uiState.value.loadingMore)
@@ -307,7 +307,7 @@ class PaginationAndEditTest {
     fun pagerPublishesUpdatedCoverAndDistinctRowsWithoutAndroidUriConversion() = runTest {
         repository.save(book(0).copy(imagePaths = listOf("old.png")))
         var state = DoujinshiPageState()
-        val pager = DoujinshiPager(this, repository) { state = it }
+        val pager = DoujinshiPager(this, repository, Dispatchers.Main) { state = it }
         pager.refresh(); advanceUntilIdle()
         repository.update(book(0).copy(imagePaths = listOf("new.png")))
         pager.refresh(); advanceUntilIdle()

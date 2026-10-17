@@ -7,6 +7,7 @@ interface CircleRepository {
     suspend fun fuzzyFind(circleName: String): List<Circle>
     suspend fun findByName(circleName: String): Circle?
     suspend fun get(id: CircleId): Circle
+    suspend fun getOrNull(id: CircleId): Circle?
     suspend fun save(circle: Circle)
     suspend fun update(circle: Circle)
     suspend fun getAll(): List<Circle>

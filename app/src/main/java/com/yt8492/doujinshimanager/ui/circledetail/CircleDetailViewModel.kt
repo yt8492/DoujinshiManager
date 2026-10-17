@@ -13,6 +13,8 @@ import com.yt8492.doujinshimanager.ui.detail.DetailDestination
 import com.yt8492.doujinshimanager.ui.lib.Destination
 import com.yt8492.doujinshimanager.ui.lib.DoujinshiPager
 import com.yt8492.doujinshimanager.ui.lib.PopBackDestination
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,6 +25,7 @@ class CircleDetailViewModel(
     private val id: CircleId,
     private val circleRepository: CircleRepository,
     private val doujinshiRepository: DoujinshiRepository,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(CircleDetailUiState.init(id))
     val uiState: StateFlow<CircleDetailUiState> = _uiState.asStateFlow()
@@ -30,7 +33,7 @@ class CircleDetailViewModel(
     private val _destination = MutableStateFlow<Destination?>(null)
     val destination: StateFlow<Destination?> = _destination.asStateFlow()
 
-    private val pager = DoujinshiPager(viewModelScope, doujinshiRepository) { state ->
+    private val pager = DoujinshiPager(viewModelScope, doujinshiRepository, ioDispatcher) { state ->
         _uiState.update {
             it.copy(
                 bindingModel = it.bindingModel.copy(

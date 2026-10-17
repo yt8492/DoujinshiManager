@@ -4,11 +4,14 @@ import com.yt8492.doujinshimanager.shared.domain.model.Doujinshi
 import com.yt8492.doujinshimanager.shared.domain.model.DoujinshiSearchSpec
 import com.yt8492.doujinshimanager.shared.domain.repository.DoujinshiRepository
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 enum class DoujinshiLoadError { REFRESH, LOAD_MORE }
 
@@ -27,6 +30,7 @@ internal data class DoujinshiPageState(
 internal class DoujinshiPager(
     private val scope: CoroutineScope,
     private val repository: DoujinshiRepository,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
     private val onChange: (DoujinshiPageState) -> Unit,
 ) {
     private var state = DoujinshiPageState()
@@ -44,15 +48,18 @@ internal class DoujinshiPager(
         publish(if (reset) DoujinshiPageState(refreshing = true) else state.copy(
             refreshing = true, loadingMore = false, error = null,
         ))
+        val lastPage = refreshLastPage
         request = scope.launch {
             try {
-                // Fetch the whole visible range in one query, replacing it atomically.
-                val result = repository.search(spec, page = 0, size = (refreshLastPage + 1) * PAGE_SIZE)
+                // Fetch the whole loaded range before publishing it atomically.
+                val result = withContext(ioDispatcher) {
+                    repository.search(spec, page = 0, size = (lastPage + 1) * PAGE_SIZE)
+                }
                 currentCoroutineContext().ensureActive()
                 if (token != generation) return@launch
                 publish(DoujinshiPageState(
                     list = result.list.distinctBy { it.id },
-                    page = refreshLastPage,
+                    page = lastPage,
                     hasNextPage = result.hasNextPage,
                 ))
             } catch (e: CancellationException) {
@@ -72,7 +79,9 @@ internal class DoujinshiPager(
         publish(state.copy(loadingMore = true))
         request = scope.launch {
             try {
-                val result = repository.search(spec, page = nextPage, size = PAGE_SIZE)
+                val result = withContext(ioDispatcher) {
+                    repository.search(spec, page = nextPage, size = PAGE_SIZE)
+                }
                 currentCoroutineContext().ensureActive()
                 if (token != generation) return@launch
                 publish(state.copy(

@@ -11,6 +11,8 @@ import com.yt8492.doujinshimanager.ui.lib.DoujinshiPager
 import com.yt8492.doujinshimanager.ui.register.RegisterDestination
 import com.yt8492.doujinshimanager.ui.search.SearchDestination
 import com.yt8492.doujinshimanager.ui.setting.SettingDestination
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,6 +20,7 @@ import kotlinx.coroutines.flow.update
 
 class TopViewModel(
     private val doujinshiRepository: DoujinshiRepository,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(TopUiState.init())
     val uiState: StateFlow<TopUiState> = _uiState.asStateFlow()
@@ -25,7 +28,7 @@ class TopViewModel(
     private val _destination = MutableStateFlow<Destination?>(null)
     val destination: StateFlow<Destination?> = _destination.asStateFlow()
 
-    private val pager = DoujinshiPager(viewModelScope, doujinshiRepository) { state ->
+    private val pager = DoujinshiPager(viewModelScope, doujinshiRepository, ioDispatcher) { state ->
         _uiState.update {
             it.copy(
                 bindingModel = TopBindingModel(

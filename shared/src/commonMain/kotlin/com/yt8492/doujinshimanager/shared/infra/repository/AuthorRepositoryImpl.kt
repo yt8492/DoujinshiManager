@@ -25,6 +25,9 @@ class AuthorRepositoryImpl(
             }
     }
 
+    override suspend fun getOrNull(id: AuthorId): Author? =
+        queries.find(id.value).executeAsOneOrNull()?.let(DBConverter::convertToModel)
+
     override suspend fun get(id: AuthorId): Author {
         return queries.find(id.value)
             .executeAsOne()

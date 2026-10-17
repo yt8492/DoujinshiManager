@@ -12,6 +12,11 @@ import com.yt8492.doujinshimanager.shared.domain.repository.*
 import com.yt8492.doujinshimanager.shared.infra.repository.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeout
+import androidx.navigation.compose.rememberNavController
+import com.yt8492.doujinshimanager.ui.search.SearchPage
+import android.os.Looper
 import com.yt8492.doujinshimanager.ui.top.TopViewModel
 import com.yt8492.doujinshimanager.ui.search.SearchViewModel
 import com.yt8492.doujinshimanager.ui.circledetail.CircleDetailViewModel
@@ -54,6 +59,7 @@ class PaginationEditNavigationTest {
         ))
         val observed = object : DoujinshiRepository by repository {
             override suspend fun search(searchSpec: DoujinshiSearchSpec, page: Int, size: Int): DoujinshiSearchResult {
+                check(Looper.myLooper() != Looper.getMainLooper()) { "SQLite search must run off the UI thread" }
                 calls += page to size
                 if (failNextSearch) { failNextSearch = false; throw IllegalStateException("temporary failure") }
                 return repository.search(searchSpec, page, size)
@@ -76,7 +82,12 @@ class PaginationEditNavigationTest {
 
     private fun start() {
         compose.setContent { MainApp() }
+        awaitText("Book 100")
         compose.onNodeWithText("Book 100").assertIsDisplayed()
+    }
+
+    private fun awaitText(text: String) {
+        compose.waitUntil(10_000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() }
     }
 
     private fun scrollTo(index: Int) {
@@ -115,6 +126,7 @@ class PaginationEditNavigationTest {
         val before = compose.onNodeWithText("Book 55").fetchSemanticsNode().boundsInRoot.top
         editTitle("Book 55", "Edited on page two")
         pressBack()
+        awaitText("Edited on page two")
         compose.onNodeWithText("Edited on page two").assertIsDisplayed()
         val after = compose.onNodeWithText("Edited on page two").fetchSemanticsNode().boundsInRoot.top
         assertEquals(before, after, 2f)
@@ -133,6 +145,7 @@ class PaginationEditNavigationTest {
         val before = compose.onNodeWithText("Book 55").fetchSemanticsNode().boundsInRoot.top
         editTitle("Book 55", "Book updated")
         pressBack()
+        awaitText("Book updated")
         compose.onNodeWithText("Book updated").assertIsDisplayed()
         compose.onNode(hasSetTextAction()).assertTextEquals("Book")
         val after = compose.onNodeWithText("Book updated").fetchSemanticsNode().boundsInRoot.top
@@ -141,21 +154,33 @@ class PaginationEditNavigationTest {
 
     @Test
     fun changedCoverUriReachesTopSearchAndCircleBindings() = runBlocking(Dispatchers.Main) {
-        val id = DoujinshiId("book-055")
-        val original = requireNotNull(repository.get(id))
-        repository.update(original.copy(imagePaths = listOf("file:///old-cover.png")))
-        val db = Database(driver)
-        val top = TopViewModel(repository)
-        val search = SearchViewModel(DoujinshiSearchSpec(), repository, circles,
-            AuthorRepositoryImpl(db.authorQueries), TagRepositoryImpl(db.tagQueries), EventRepositoryImpl(db.eventQueries))
-        val circle = CircleDetailViewModel(circleA.id, circles, repository)
-        top.load(); top.loadMore(); search.loadMore(); circle.loadMore()
-        assertEquals("file:///old-cover.png", top.uiState.value.bindingModel.list.first { it.id == id }.image.toString())
-        repository.update(original.copy(imagePaths = listOf("file:///new-cover.png")))
-        top.load(); search.refresh(); circle.load()
-        assertEquals("file:///new-cover.png", top.uiState.value.bindingModel.list.first { it.id == id }.image.toString())
-        assertEquals("file:///new-cover.png", search.bindingModel.value.searchResult.first { it.id == id }.image.toString())
-        assertEquals("file:///new-cover.png", circle.uiState.value.bindingModel.list.first { it.id == id }.image.toString())
+        withTimeout(15_000) {
+            val id = DoujinshiId("book-055")
+            val original = requireNotNull(repository.get(id))
+            repository.update(original.copy(imagePaths = listOf("file:///old-cover.png")))
+            val db = Database(driver)
+            val top = TopViewModel(repository)
+            val search = SearchViewModel(DoujinshiSearchSpec(), repository, circles,
+                AuthorRepositoryImpl(db.authorQueries), TagRepositoryImpl(db.tagQueries), EventRepositoryImpl(db.eventQueries))
+            val circle = CircleDetailViewModel(circleA.id, circles, repository)
+            top.load()
+            top.uiState.first { !it.refreshing && it.bindingModel.list.size == 30 }
+            search.bindingModel.first { !it.refreshing && it.searchResult.size == 30 }
+            circle.uiState.first { !it.refreshing && it.bindingModel.list.size == 30 }
+            top.loadMore(); search.loadMore(); circle.loadMore()
+            top.uiState.first { !it.loadingMore && it.bindingModel.list.size == 60 }
+            search.bindingModel.first { !it.loadingMore && it.searchResult.size == 60 }
+            circle.uiState.first { !it.loadingMore && it.bindingModel.list.size == 60 }
+            assertEquals("file:///old-cover.png", top.uiState.value.bindingModel.list.first { it.id == id }.image.toString())
+            repository.update(original.copy(imagePaths = listOf("file:///new-cover.png")))
+            top.load(); search.refresh(); circle.load()
+            top.uiState.first { !it.refreshing }
+            search.bindingModel.first { !it.refreshing }
+            circle.uiState.first { !it.refreshing }
+            assertEquals("file:///new-cover.png", top.uiState.value.bindingModel.list.first { it.id == id }.image.toString())
+            assertEquals("file:///new-cover.png", search.bindingModel.value.searchResult.first { it.id == id }.image.toString())
+            assertEquals("file:///new-cover.png", circle.uiState.value.bindingModel.list.first { it.id == id }.image.toString())
+        }
     }
 
     @Test
@@ -190,10 +215,45 @@ class PaginationEditNavigationTest {
         compose.onNode(hasText("Book 55") and hasSetTextAction()).performTextReplacement("Circle book updated")
         compose.onNodeWithContentDescription("保存").performClick()
         pressBack()
+        awaitText("Circle book updated")
         compose.onNodeWithText("Circle book updated").assertIsDisplayed()
         compose.onNodeWithText("Book 54").assertDoesNotExist()
         val after = compose.onNodeWithText("Circle book updated").fetchSemanticsNode().boundsInRoot.top
         assertEquals(before, after, 2f)
         assertTrue(requests().any { it.second == 60 })
     }
+    @Test
+    fun searchMetadataFailureShowsRetryAndRecoversWithoutLosingTheFilter() {
+        val db = Database(driver)
+        val events = EventRepositoryImpl(db.eventQueries)
+        val event = Event(EventId("selected-event"), "Selected event", null)
+        runBlocking {
+            events.save(event)
+            val original = requireNotNull(repository.get(DoujinshiId("book-100")))
+            repository.update(original.copy(event = event))
+        }
+        val failMetadata = java.util.concurrent.atomic.AtomicBoolean(true)
+        val observed = object : EventRepository by events {
+            override suspend fun getOrNull(id: EventId): Event? {
+                check(Looper.myLooper() != Looper.getMainLooper())
+                if (failMetadata.get()) error("temporary metadata failure")
+                return events.getOrNull(id)
+            }
+        }
+        val spec = DoujinshiSearchSpec(event = event.id)
+        val vm = runBlocking(Dispatchers.Main) {
+            SearchViewModel(spec, repository, circles, AuthorRepositoryImpl(db.authorQueries),
+                TagRepositoryImpl(db.tagQueries), observed)
+        }
+        compose.setContent { SearchPage(spec, rememberNavController(), vm) }
+        awaitText("再試行")
+        compose.onNodeWithText("Book 100").assertIsDisplayed()
+        failMetadata.set(false)
+        compose.onNodeWithText("再試行").performClick()
+        compose.waitUntil(10_000) { vm.bindingModel.value.event == event && vm.bindingModel.value.loadError == null }
+        compose.onNodeWithText("再試行").assertDoesNotExist()
+        compose.onNodeWithText("Book 100").assertIsDisplayed()
+        compose.runOnIdle { assertEquals(listOf(DoujinshiId("book-100")), vm.bindingModel.value.searchResult.map { it.id }) }
+    }
+
 }

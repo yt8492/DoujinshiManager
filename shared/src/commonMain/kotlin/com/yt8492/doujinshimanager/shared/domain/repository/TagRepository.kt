@@ -7,6 +7,7 @@ interface TagRepository {
     suspend fun fuzzyFind(tagName: String): List<Tag>
     suspend fun findByName(tagName: String): Tag?
     suspend fun get(id: TagId): Tag
+    suspend fun getOrNull(id: TagId): Tag?
     suspend fun save(tag: Tag)
     suspend fun getAll(): List<Tag>
     suspend fun deleteAll()
